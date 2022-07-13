@@ -1,0 +1,34 @@
+[
+    {
+     "createdAt": 1656451322238,
+     "username": "Omobowale",
+     "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/253.jpg",
+     "email": "Magdalena.Grady22@hotmail.com",
+     "password": "_ZFjwVMIsQ1zrMD",
+     "roles": [
+        {
+         "id" : "1",
+         "name" : "GH"
+        }
+    ],
+     "id": "omobowaleotuyiga"
+    },
+    {
+     "createdAt": 1656451322239,
+     "username": "Adebisi",
+     "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/942.jpg",
+     "email": "Cedrick_Daugherty98@gmail.com",
+     "password": "u7xRQB_TbsVurth",
+     "roles": [],
+     "id": "adebisiadeleke"
+    },
+    {
+     "createdAt": 1656451322239,
+     "username": "Peter",
+     "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/431.jpg",
+     "email": "Josie_Ruecker1@gmail.com",
+     "password": "uG6CtQzHyrJYILk",
+     "roles": [],
+     "id": "peterjoe"
+    }
+   ]

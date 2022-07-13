@@ -1,0 +1,29 @@
+[
+    {
+        "enums": {
+            "visitTypeEnum": {
+                "0": "Personal",
+                "1": "Official"
+            },
+            "visitorTypeEnum": {
+                "0": "Regular",
+                "1": "VVIP"
+            },
+            "appointmentStatusEnum": {
+                "0": "Pending",
+                "1": "Approved",
+                "2": "Declined",
+                "3": "Cancelled",
+                "4": "Rescheduled"
+            },
+            "cancellationReasonEnum": {
+                "0": "Unable to get time off",
+                "1": "Out of office",
+                "2": "Insecurity",
+                "3": "Inconvenience",
+                "4": "Others"
+            }
+        },
+        "id": "1"
+    }
+]

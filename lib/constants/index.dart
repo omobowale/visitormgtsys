@@ -1,0 +1,2 @@
+const DELAY = 10000;
+const MAXIMUM_NUMBER_OF_GUESTS = 5;

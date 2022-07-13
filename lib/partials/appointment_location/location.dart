@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
+import 'package:vms/custom_widgets/custom_drop_down.dart';
+import 'package:vms/custom_widgets/custom_error_label.dart';
+import 'package:vms/custom_widgets/custom_input_label.dart';
+import 'package:vms/models/api_response.dart';
+import 'package:vms/models/floor.dart';
+import 'package:vms/models/location.dart';
+import 'package:vms/notifiers/appointment_notifier.dart';
+import 'package:vms/services/location_service.dart';
+
+class LocationSection extends StatefulWidget {
+  final String labelText;
+  final List<Location> locationsList;
+
+  const LocationSection(
+      {Key? key, required this.labelText, required this.locationsList})
+      : super(key: key);
+
+  @override
+  State<LocationSection> createState() => _LocationSectionState();
+}
+
+class _LocationSectionState extends State<LocationSection> {
+  late AppointmentNotifier _appointmentNotifier;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _appointmentNotifier =
+        Provider.of<AppointmentNotifier>(context, listen: false);
+  }
+
+  List<dynamic> extractLocations(List<Location>? locations) {
+    if (locations != null) {
+      List<dynamic> locationNames = locations
+          .map(
+            (e) => e.name,
+          )
+          .toList();
+      return locationNames;
+    }
+
+    return [];
+  }
+
+  Location getLocationByName(List<Location>? locations, String name) {
+    try {
+      if (locations != null) {
+        return locations.firstWhere((element) => element.name == name);
+      }
+      return Location.emptyOne();
+    } on StateError {
+      return Location.emptyOne();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Location location =
+        context.read<AppointmentNotifier>().appointments[0].location;
+    String locationName =
+        location.isValid() ? location.name : widget.locationsList[0].name;
+
+    return Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: 20,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomInputLabel(labelText: "Location"),
+          CustomErrorLabel(
+            errorText: context
+                .read<AppointmentNotifier>()
+                .allLocationErrors["location"],
+          ),
+          CustomDropDown(
+            text: locationName,
+            onTap: (value) {
+              var location = getLocationByName(widget.locationsList, value);
+              context.read<AppointmentNotifier>().addLocation(location);
+            },
+            lists: extractLocations(widget.locationsList).toSet(),
+          ),
+        ],
+      ),
+    );
+  }
+}
