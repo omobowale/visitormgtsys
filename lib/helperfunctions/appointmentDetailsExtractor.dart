@@ -1,3 +1,5 @@
+import 'package:vms/models/fetched_appointments.dart';
+
 Map<String, dynamic> selectedAppointmentStatusEnum(
     int appointmentStatus, List<Map<String, dynamic>> statuses) {
   try {
@@ -23,4 +25,16 @@ bool canBeApproved(int appointmentStatus, List<Map<String, dynamic>> statuses) {
     return false;
   }
   return false;
+}
+
+String getVisitorType(FetchedAppointments? fetchedAppointment) {
+  if (fetchedAppointment!.visitors != null) {
+    try {
+      return fetchedAppointment.visitors[0].visitorType;
+    } on RangeError {
+      return "-";
+    }
+  }
+
+  return '-';
 }

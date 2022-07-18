@@ -9,6 +9,7 @@ import 'package:vms/data/visit_types.dart';
 import 'package:vms/helperfunctions/custom_date_formatter.dart';
 import 'package:vms/helperfunctions/custom_string_manipulations.dart';
 import 'package:vms/helperfunctions/modify_appointment.dart';
+import 'package:vms/models/fetched_appointments.dart';
 import 'package:vms/models/floor.dart';
 import 'package:vms/models/group_head.dart';
 import 'package:vms/models/host.dart';
@@ -26,11 +27,12 @@ class AppointmentNotifier with ChangeNotifier {
   bool _completed = false;
   bool _isCreating = false;
   bool _isEditing = false;
-  Visitor currentGuest = Visitor.emptyOne();
+  Visitor _newGuest = Visitor.emptyOne();
 
   Map<String, String> newAppointmentErrors = {};
   Map<String, String> locationErrors = {};
   Map<String, String> visitorInformationErrors = {};
+  Map<String, String> currentGuestErrors = {};
   Map<String, String> otherVisitorInformationErrors = {};
 
   List<Appointment> get appointments {
@@ -49,6 +51,10 @@ class AppointmentNotifier with ChangeNotifier {
     return {...visitorInformationErrors};
   }
 
+  Map<String, String> get allCurrentGuestErrors {
+    return {...currentGuestErrors};
+  }
+
   Map<String, String> get allOtherVisitorInformationErrors {
     return {...otherVisitorInformationErrors};
   }
@@ -56,20 +62,24 @@ class AppointmentNotifier with ChangeNotifier {
   bool get isCreating => _isCreating;
   bool get isEditing => _isEditing;
 
-  void set setIsCreating(bool isCreating) {
+  Visitor get getNewGuest {
+    return _newGuest;
+  }
+
+  set setIsCreating(bool isCreating) {
     //remove all errors
     removeAllErrors();
     _isCreating = isCreating;
   }
 
-  void set setIsEditing(bool isEditing) {
+  set setIsEditing(bool isEditing) {
     //remove all errors
     removeAllErrors();
     _isEditing = isEditing;
   }
 
-  void set setCurrentGuest(Visitor visitor) {
-    this.currentGuest = visitor;
+  set setNewGuest(Visitor visitor) {
+    _newGuest = visitor;
     notifyListeners();
   }
 
@@ -80,19 +90,41 @@ class AppointmentNotifier with ChangeNotifier {
     otherVisitorInformationErrors = {};
   }
 
-  void set completed(bool completed) {
+  set completed(bool completed) {
     _completed = completed;
     notifyListeners();
   }
 
   void resetAppointmentList() {
     _appointmentsList.clear();
+    _newGuest = Visitor.emptyOne();
   }
 
-  void loadSelectedAppointment(Appointment? appointment) {
+  void loadSelectedAppointment(FetchedAppointments? fetchedAppointments) {
     setIsEditing = true;
     setIsCreating = false;
-    if (appointment != null) {
+    if (fetchedAppointments != null) {
+      Appointment appointment = Appointment(
+        id: fetchedAppointments.appointmentId.toString(),
+        host: fetchedAppointments.host,
+        visitorType: fetchedAppointments.visitors.length > 0
+            ? (fetchedAppointments.visitors[0].visitorType ?? "")
+            : "",
+        visitPurpose: fetchedAppointments.visitPurpose,
+        startTime: fetchedAppointments.startTime,
+        groupHead: fetchedAppointments.groupHead,
+        endTime: fetchedAppointments.endTime,
+        visitType: "",
+        appointmentStatus: 0,
+        appointmentDate: fetchedAppointments.appointmentDate,
+        floor: Floor.emptyOne(),
+        guests: [],
+        meetingRoom: '',
+        rooms: [],
+        location: Location.emptyOne(),
+        purposeOfCancel: "",
+        purposeOfReschedule: "",
+      );
       resetAppointmentList();
       _appointmentsList.add(appointment);
       showAppointment(appointment);
@@ -103,21 +135,22 @@ class AppointmentNotifier with ChangeNotifier {
   void addEmptyAppointment() {
     if (!isCreating) {
       resetAppointmentList();
-      Visitor newVisitor = Visitor.emptyOne();
+
       _appointmentsList.add(
         new Appointment(
           id: "",
           host: Host.emptyOne(),
-          visitType: "",
+          visitPurpose: "",
           startTime: CustomDateFormatter.getDateTimeFromTimeString(
               DateTime.now(), timesSelection[0]),
           endTime: CustomDateFormatter.getDateTimeFromTimeString(
               DateTime.now(), timesSelection[1]),
-          appointmentType: "",
+          visitType: "",
+          visitorType: "",
           appointmentStatus: 0, //appointmentStatuses[0]["value"],
           appointmentDate: DateTime.now(),
           floor: Floor.emptyOne(),
-          guests: [newVisitor],
+          guests: [getNewGuest],
           rooms: [],
           meetingRoom: "",
           location: Location.emptyOne(),
@@ -132,7 +165,6 @@ class AppointmentNotifier with ChangeNotifier {
 
   void addGuests(List<dynamic> guests) {
     _appointmentsList[_appointmentsList.length - 1].guests = guests;
-    // notifyListeners();
   }
 
   List<dynamic> getValidGuests() {
@@ -149,26 +181,20 @@ class AppointmentNotifier with ChangeNotifier {
     return allGuests;
   }
 
-  void addGuest(Visitor visitor) {
-    _appointmentsList[_appointmentsList.length - 1].guests.add(visitor);
-
-    var allGuests = _appointmentsList[_appointmentsList.length - 1].guests;
-    var lastGuest = allGuests[allGuests.length - 1];
-    setCurrentGuest = lastGuest;
-
+  void createEmptyGuest() {
+    setNewGuest = Visitor.emptyOne();
     notifyListeners();
   }
 
-  void addNewEmptyGuest(String id) {
-    Visitor newGuest = Visitor.emptyOne();
-    newGuest.id = id;
-    _appointmentsList[_appointmentsList.length - 1].guests.add(newGuest);
+  void addGuest(Visitor visitor) {
+    appointments[appointments.length - 1].guests.add(visitor);
+    print("Added new guest");
+    showAppointment(appointments[appointments.length - 1]);
     notifyListeners();
   }
 
   void addVisitorType(String visitorType) {
-    _appointmentsList[_appointmentsList.length - 1].appointmentType =
-        visitorType;
+    _appointmentsList[_appointmentsList.length - 1].visitorType = visitorType;
     notifyListeners();
   }
 
@@ -177,8 +203,8 @@ class AppointmentNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  void addVisitType(String visitType) {
-    _appointmentsList[_appointmentsList.length - 1].visitType = visitType;
+  void addVisitPurpose(String visitPurpose) {
+    _appointmentsList[_appointmentsList.length - 1].visitPurpose = visitPurpose;
     notifyListeners();
   }
 
@@ -192,58 +218,52 @@ class AppointmentNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  void addVisitorId(Visitor visitor, String id) {
-    var allGuests = _appointmentsList[_appointmentsList.length - 1].guests;
-    var lastGuest = allGuests[allGuests.length - 1];
-
-    lastGuest.id = id;
+  void addVisitorId(Visitor visitor, int id) {
+    var curGuest = getNewGuest;
+    curGuest.id = id;
+    setNewGuest = curGuest;
+    // showAppointment(_appointmentsList[_appointmentsList.length - 1]);
     notifyListeners();
   }
 
   void addVisitorFirstName(String firstName) {
-    var allGuests = _appointmentsList[_appointmentsList.length - 1].guests;
-    var lastGuest = allGuests[allGuests.length - 1];
-
-    lastGuest.firstName = firstName;
+    var curGuest = getNewGuest;
+    curGuest.firstName = firstName;
+    setNewGuest = curGuest;
+    // showAppointment(_appointmentsList[_appointmentsList.length - 1]);
     notifyListeners();
   }
 
   void addVisitorLastName(String lastName) {
-    var allGuests = _appointmentsList[_appointmentsList.length - 1].guests;
-    var lastGuest = allGuests[allGuests.length - 1];
-
-    lastGuest.lastName = lastName;
+    var curGuest = getNewGuest;
+    curGuest.lastName = lastName;
+    setNewGuest = curGuest;
+    // showAppointment(_appointmentsList[_appointmentsList.length - 1]);
     notifyListeners();
   }
 
   void addVisitorEmail(String email) {
-    var allGuests = _appointmentsList[_appointmentsList.length - 1].guests;
-    var lastGuest = allGuests[allGuests.length - 1];
-
-    lastGuest.email = email;
+    var curGuest = getNewGuest;
+    curGuest.email = email;
+    setNewGuest = curGuest;
+    // showAppointment(_appointmentsList[_appointmentsList.length - 1]);
     notifyListeners();
   }
 
   void addVisitorAddress(String address) {
-    var allGuests = _appointmentsList[_appointmentsList.length - 1].guests;
-    var lastGuest = allGuests[allGuests.length - 1];
-
-    lastGuest.address = address;
+    var curGuest = getNewGuest;
+    curGuest.address = address;
+    setNewGuest = curGuest;
+    // showAppointment(_appointmentsList[_appointmentsList.length - 1]);
     notifyListeners();
   }
 
   void addVisitorPhoneNumber(String phoneNumber) {
-    var allGuests = _appointmentsList[_appointmentsList.length - 1].guests;
-    var lastGuest = allGuests[allGuests.length - 1];
-
-    lastGuest.phoneNumber = phoneNumber;
+    var curGuest = getNewGuest;
+    curGuest.phoneNumber = phoneNumber;
+    setNewGuest = curGuest;
+    // showAppointment(_appointmentsList[_appointmentsList.length - 1]);
     notifyListeners();
-  }
-
-  Visitor get getCurrentGuest {
-    var allGuests = _appointmentsList[_appointmentsList.length - 1].guests;
-    var lastGuest = allGuests[allGuests.length - 1];
-    return lastGuest;
   }
 
   void addStartTime(String startTime) {
@@ -334,21 +354,21 @@ class AppointmentNotifier with ChangeNotifier {
     var app = "";
     app += "appointment id: " + appointment.id.toString() + "\n";
     app += "appointment date: " + appointment.appointmentDate.toString() + "\n";
-    app += "room : " + appointment.rooms.toString() + "\n";
+    app += "room: " + appointment.rooms.toString() + "\n";
     app += "host: " + appointment.host.toString() + "\n";
-    app += "visit type: " + appointment.visitType.toString() + "\n";
+    app += "visit purpose: " + appointment.visitPurpose.toString() + "\n";
     app += "end time: " + appointment.endTime.toString() + "\n";
     app += "start time: " + appointment.startTime.toString() + "\n";
-    app += "visitType: " + appointment.visitType.toString() + "\n";
-    app += "appointment type: " + appointment.appointmentType.toString() + "\n";
+
+    app += "guests: " + appointment.guests.toString() + "\n";
+    app += "group head: " + appointment.groupHead.toString() + "\n";
+    app += "visit type: " + appointment.visitType.toString() + "\n";
     app += "reschedule reason: " +
         appointment.purposeOfReschedule.toString() +
         "\n";
     app += "cancel reason: " + appointment.purposeOfCancel.toString() + "\n";
-    app += "location" + appointment.location.toString() + "\n";
-    app += "floor" + appointment.floor.toString() + "\n";
-    app += "guests" + appointment.guests.toString() + "\n";
-    app += "group head" + appointment.groupHead.toString() + "\n";
+    app += "location: " + appointment.location.toString() + "\n";
+    app += "floor: " + appointment.floor.toString() + "\n";
 
     print(app);
   }
@@ -367,6 +387,7 @@ class AppointmentNotifier with ChangeNotifier {
     newAppointmentErrors.remove(errorType);
     locationErrors.remove(errorType);
     visitorInformationErrors.remove(errorType);
+    currentGuestErrors.remove(errorType);
     otherVisitorInformationErrors.remove(errorType);
     notifyListeners();
   }
@@ -395,21 +416,21 @@ class AppointmentNotifier with ChangeNotifier {
     }
   }
 
-  void isVisitorTypeValid(String appointmentType) {
-    if (appointmentType == null || appointmentType == "") {
+  void isVisitorTypeValid(String visitorType) {
+    if (visitorType == null || visitorType == "") {
       newAppointmentErrors.putIfAbsent(
-          "appointmentType", () => "Please select a visitor type");
+          "visitType", () => "Please select a visitor type");
     } else {
-      newAppointmentErrors.remove("appointmentType");
+      newAppointmentErrors.remove("visitorType");
     }
   }
 
-  void isVisitTypeValid(String visitType) {
-    if (visitType == null || visitType == "") {
+  void isVisitPurposeValid(String visitPurpose) {
+    if (visitPurpose == null || visitPurpose == "") {
       newAppointmentErrors.putIfAbsent(
-          "visitType", () => "Please select a visit type");
+          "visitPurpose", () => "Please select a visit type");
     } else {
-      newAppointmentErrors.remove("visitType");
+      newAppointmentErrors.remove("visitPurpose");
     }
   }
 
@@ -456,9 +477,9 @@ class AppointmentNotifier with ChangeNotifier {
   void newAppointmentValid() {
     var currentAppointment = _appointmentsList[_appointmentsList.length - 1];
 
-    isVisitorTypeValid(currentAppointment.appointmentType);
+    isVisitorTypeValid(currentAppointment.visitorType);
     isAppointmentDateValid(currentAppointment.appointmentDate);
-    isVisitTypeValid(currentAppointment.visitType);
+    isVisitPurposeValid(currentAppointment.visitPurpose);
     isHostValid(currentAppointment.host);
     isGroupHeadValid(currentAppointment.groupHead);
     isStartTimeValid(currentAppointment.startTime);
@@ -493,12 +514,22 @@ class AppointmentNotifier with ChangeNotifier {
     }
   }
 
+  void areRoomsValid(List<dynamic> rooms) {
+    if (rooms == null || rooms.isEmpty) {
+      locationErrors.putIfAbsent(
+          "rooms", () => "Please select at least one room");
+    } else {
+      locationErrors.remove("rooms");
+    }
+  }
+
   void locationValid() {
     var currentAppointment = _appointmentsList[_appointmentsList.length - 1];
 
     isLocationValid(currentAppointment.location);
     isFloorValid(currentAppointment.floor);
-    isMeetingRoomValid(currentAppointment.meetingRoom);
+    // isMeetingRoomValid(currentAppointment.meetingRoom);
+    areRoomsValid(currentAppointment.rooms);
 
     print(locationErrors);
 
@@ -543,19 +574,17 @@ class AppointmentNotifier with ChangeNotifier {
 
   void isGuestFirstNameValid(String firstName, Map<String, String> errorsType) {
     if (firstName == null || firstName == "") {
-      visitorInformationErrors.putIfAbsent(
-          "firstName", () => "Please enter first name");
+      errorsType.putIfAbsent("firstName", () => "Please enter first name");
     } else {
-      visitorInformationErrors.remove("firstName");
+      errorsType.remove("firstName");
     }
   }
 
   void isGuestLastNameValid(String lastName, Map<String, String> errorsType) {
     if (lastName == null || lastName == "") {
-      visitorInformationErrors.putIfAbsent(
-          "lastName", () => "Please enter last name");
+      errorsType.putIfAbsent("lastName", () => "Please enter last name");
     } else {
-      visitorInformationErrors.remove("lastName");
+      errorsType.remove("lastName");
     }
   }
 
@@ -575,20 +604,34 @@ class AppointmentNotifier with ChangeNotifier {
     notifyListeners();
   }
 
+  void currentGuestValid() {
+    var currentGuest = getNewGuest;
+    isGuestFirstNameValid(currentGuest.firstName, currentGuestErrors);
+    isGuestLastNameValid(currentGuest.lastName, currentGuestErrors);
+    isGuestEmailValid(currentGuest.email, currentGuestErrors);
+    isGuestPhoneNumberValid(currentGuest.phoneNumber, currentGuestErrors);
+
+    isGuestAddressValid(currentGuest.address, currentGuestErrors);
+
+    print(currentGuestErrors);
+
+    notifyListeners();
+  }
+
   void visitorInformationValid() {
     var currentAppointment = _appointmentsList[_appointmentsList.length - 1];
+    var currentGuests = currentAppointment.guests;
+    isGuestFirstNameValid(currentGuests[currentGuests.length - 1].firstName,
+        visitorInformationErrors);
+    isGuestLastNameValid(currentGuests[currentGuests.length - 1].lastName,
+        visitorInformationErrors);
+    isGuestEmailValid(currentGuests[currentGuests.length - 1].email,
+        visitorInformationErrors);
+    isGuestPhoneNumberValid(currentGuests[currentGuests.length - 1].phoneNumber,
+        visitorInformationErrors);
 
-    isGuestFirstNameValid(
-        currentAppointment.guests[0].firstName, visitorInformationErrors);
-    isGuestLastNameValid(
-        currentAppointment.guests[0].lastName, visitorInformationErrors);
-    isGuestEmailValid(
-        currentAppointment.guests[0].email, visitorInformationErrors);
-    isGuestPhoneNumberValid(
-        currentAppointment.guests[0].phoneNumber, visitorInformationErrors);
-
-    isGuestAddressValid(
-        currentAppointment.guests[0].address, visitorInformationErrors);
+    isGuestAddressValid(currentGuests[currentGuests.length - 1].address,
+        visitorInformationErrors);
 
     print(visitorInformationErrors);
 
@@ -645,8 +688,8 @@ class AppointmentNotifier with ChangeNotifier {
     }
   }
 
-  static List<Appointment> fetchAppointmentForDay(
-      List<Appointment> appointments, DateTime selectedDate) {
+  static List<FetchedAppointments> fetchAppointmentForDay(
+      List<FetchedAppointments> appointments, DateTime selectedDate) {
     String selectedDateString =
         CustomDateFormatter.getFormatedDate(selectedDate);
     try {
@@ -661,7 +704,7 @@ class AppointmentNotifier with ChangeNotifier {
     }
   }
 
-  static List<DateTime> getMarkedDates(List<Appointment> appointments) {
+  static List<DateTime> getMarkedDates(List<FetchedAppointments> appointments) {
     try {
       var md = appointments.map((element) => element.appointmentDate).toList();
       return md;

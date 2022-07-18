@@ -7,11 +7,9 @@ import 'package:vms/models/api_response.dart';
 import 'package:vms/models/floor.dart';
 import 'package:vms/models/location.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
-import 'package:vms/partials/appointment_location/room.dart';
+import 'package:vms/partials/appointment_location/roomlist.dart';
 import 'package:vms/services/location_service.dart';
-import 'package:vms/views/maker/visitor_information.dart';
 import 'package:vms/partials/appointment_location/floor.dart';
-import 'package:vms/views/maker/new_appointment.dart';
 import 'package:vms/partials/appointment_location/location.dart';
 import 'package:vms/partials/common/bottom_fixed_section.dart';
 import 'package:vms/partials/common/top.dart';
@@ -48,6 +46,9 @@ class _AppointmentLocationState extends State<AppointmentLocation> {
       print("here 2");
       setState(() {
         _locationsList = response;
+        getRooms(_locationsList.data!);
+        getFloorFromRoomName(_locationsList.data!, "Meeting Room A (by CBG)");
+        print("i got here");
         print("location list data: ${_locationsList.data}");
         if (!_appointmentNotifier.appointments[0].location.isValid()) {
           _appointmentNotifier.addLocation(_locationsList.data![0]);
@@ -57,6 +58,41 @@ class _AppointmentLocationState extends State<AppointmentLocation> {
         isLoading = false;
       });
     });
+  }
+
+  List<dynamic> getRooms(List<dynamic> locations) {
+    print("location rooms: ${locations[0].floors[0].meetingRooms}");
+    List<dynamic> rooms = [];
+
+    locations.forEach((l) {
+      l.floors.forEach((f) {
+        f.meetingRooms.forEach((r) {
+          rooms.add(r["name"]);
+        });
+      });
+    });
+
+    print("rooms are ${rooms}");
+
+    return rooms;
+  }
+
+  String getFloorFromRoomName(List<dynamic> locations, String roomName) {
+    dynamic floor;
+    try {
+      locations.forEach((l) {
+        l.floors.forEach((f) {
+          f.meetingRooms.forEach((r) {
+            if (r["name"] == roomName) {
+              floor = f;
+            }
+          });
+        });
+      });
+      return floor.name;
+    } on Error {
+      return '';
+    }
   }
 
   @override
@@ -92,9 +128,12 @@ class _AppointmentLocationState extends State<AppointmentLocation> {
                           text: "Unable to fetch locations",
                         ),
                       ),
-                Room(onComplete: (value) {
-                  _appointmentNotifier.addMeetingRoom(value);
-                }),
+                // Room(onComplete: (value) {
+                //   _appointmentNotifier.addMeetingRoom(value);
+                // }),
+
+                RoomsList(
+                    roomsList: _locationsList.data![0].floors[0].meetingRooms),
                 Divider(),
                 BottomFixedSection(
                   leftText: "Back",

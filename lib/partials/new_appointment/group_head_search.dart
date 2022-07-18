@@ -21,7 +21,7 @@ class _CustomGroupHeadState extends State<CustomGroupHead> {
   Widget build(BuildContext context) {
     AppointmentNotifier _appointmentNotifier =
         Provider.of<AppointmentNotifier>(context, listen: true);
-    String staffName =
+    String name =
         context.read<AppointmentNotifier>().appointments[0].groupHead.staffName;
     return Container(
       margin: EdgeInsets.symmetric(
@@ -61,11 +61,9 @@ class _CustomGroupHeadState extends State<CustomGroupHead> {
               padding: EdgeInsets.symmetric(horizontal: 10),
               alignment: Alignment.centerLeft,
               child: Text(
-                (staffName == "" || staffName == null)
-                    ? groupHeadName
-                    : staffName,
+                (name == "" || name == null) ? groupHeadName : name,
                 style: TextStyle(
-                  color: staffName == "" || staffName == null
+                  color: name == "" || name == null
                       ? Palette.FBN_BLUE.withOpacity(opacity)
                       : Palette.FBN_BLUE.withOpacity(0.7),
                   fontSize: 16,
@@ -185,45 +183,69 @@ class GroupHeadSearch extends SearchDelegate<GroupHead> {
       return ghText.startsWith(queryText);
     }).toList();
 
-    return ListView.builder(
-      itemCount: suggestedGHs.length,
-      itemBuilder: (context, index) {
-        final suggestion = suggestedGHs[index];
-        String staffName =
-            suggestion.staffName != null ? suggestion.staffName : "";
-        final queryText = staffName.substring(0, query.length);
-        final remainingText = staffName.substring(query.length);
-        return ListTile(
-          onTap: () {
-            query = staffName;
-            close(context, suggestion);
-          },
-          leading: Icon(Icons.group_add_outlined),
-          title: RichText(
-            text: TextSpan(
-              text: queryText,
+    return suggestions.length > 0
+        ? ListView.builder(
+            itemCount: suggestedGHs.length,
+            itemBuilder: (context, index) {
+              final suggestion = suggestedGHs[index];
+              String name =
+                  suggestion.staffName != null ? suggestion.staffName : "";
+              final queryText = name.substring(0, query.length);
+              final remainingText = name.substring(query.length);
+              return suggestions.length > 0
+                  ? ListTile(
+                      onTap: () {
+                        query = name;
+                        close(context, suggestion);
+                      },
+                      leading: Icon(Icons.group_add_outlined),
+                      title: RichText(
+                        text: TextSpan(
+                          text: queryText,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: remainingText,
+                              style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      subtitle: Text(
+                          suggestion.email != null ? suggestion.email : ""),
+                      trailing: Text(
+                        suggestion.staffNo,
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    )
+                  : Center(
+                      child: Text(
+                        "No group heads found",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                        ),
+                      ),
+                    );
+              ;
+            },
+          )
+        : Center(
+            child: Text(
+              "Could not fetch group heads",
               style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+                color: Colors.red,
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
               ),
-              children: [
-                TextSpan(
-                  text: remainingText,
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                  ),
-                )
-              ],
             ),
-          ),
-          subtitle: Text(suggestion.email != null ? suggestion.email : ""),
-          trailing: Text(
-            suggestion.staffNo,
-            style: TextStyle(fontWeight: FontWeight.w500),
-          ),
-        );
-      },
-    );
+          );
   }
 }

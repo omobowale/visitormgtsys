@@ -6,7 +6,7 @@ import 'package:vms/custom_widgets/custom_appointment_day_date.dart';
 import 'package:vms/custom_widgets/custom_calendar_strip_section.dart';
 import 'package:vms/custom_widgets/custom_no_appointment.dart';
 import 'package:vms/models/api_response.dart';
-import 'package:vms/models/appointment.dart';
+import 'package:vms/models/fetched_appointments.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 import 'package:vms/notifiers/user_notifier.dart';
 import 'package:vms/services/appointment_service.dart';
@@ -25,8 +25,8 @@ class _ViewState extends State<View> {
   int _selectedIndex = 0;
   DateTime selectedDate = DateTime.now();
 
-  late APIResponse<List<Appointment>> _appointmentList;
-  List<Appointment> appointmentListData = [];
+  late APIResponse<List<FetchedAppointments>> _appointmentList;
+  List<FetchedAppointments> appointmentListData = [];
   List<DateTime> markedDates = [];
 
   @override
@@ -35,7 +35,7 @@ class _ViewState extends State<View> {
         Provider.of<UserNotifier>(context, listen: false);
 
     _appointmentList =
-        new APIResponse<List<Appointment>>(data: [], error: false);
+        new APIResponse<List<FetchedAppointments>>(data: [], error: false);
 
     _fetchAppointmentForDay();
     // TODO: implement initState

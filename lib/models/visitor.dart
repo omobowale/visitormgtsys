@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Visitor with ChangeNotifier {
-  String id;
+  int id;
   String firstName;
   String lastName;
   String email;
   String address;
   String phoneNumber;
-  int visitorType;
+  String visitorType;
   bool hasPersonalAsset;
 
   Visitor({
@@ -23,13 +23,13 @@ class Visitor with ChangeNotifier {
 
   factory Visitor.emptyOne() {
     return Visitor(
-      id: "",
+      id: 0,
       firstName: "",
       lastName: "",
       address: "",
       email: "",
       phoneNumber: "",
-      visitorType: 0,
+      visitorType: "",
       hasPersonalAsset: true,
     );
   }
@@ -71,6 +71,7 @@ class Visitor with ChangeNotifier {
   }
 
   Map<String, dynamic> toMap() {
+    print("visitorType here: ${visitorType}");
     return {
       "id": id,
       "firstName": firstName,
@@ -78,7 +79,7 @@ class Visitor with ChangeNotifier {
       "phoneNumber": phoneNumber,
       "email": email,
       "address": address,
-      "visitorType": visitorType,
+      "visitorType": int.tryParse(visitorType) ?? 0,
       "hasPersonalAsset": true,
     };
   }
@@ -90,7 +91,7 @@ class Visitor with ChangeNotifier {
       email: visitor["email"],
       firstName: visitor["firstName"],
       lastName: visitor["lastName"],
-      id: visitor["id"].toString(),
+      id: visitor["id"],
       visitorType: visitor["visitorType"],
       hasPersonalAsset: visitor["hasPersonalAsset"],
     );

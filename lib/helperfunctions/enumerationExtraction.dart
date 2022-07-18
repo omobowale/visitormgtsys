@@ -13,14 +13,22 @@ List<Map<String, dynamic>> extractFromEnumeration(
   return enumList;
 }
 
-List<Map<String, dynamic>> getAndSetEnumeration(Map<String, dynamic> enums, String enumType) {
-  
-    var x = enums[enumType];
+List<Map<String, dynamic>> getAndSetEnumeration(
+    Map<String, dynamic> enums, String enumType) {
+  var x = enums[enumType];
 
-    var typeList = extractFromEnumeration(x);
+  var typeList = extractFromEnumeration(x);
 
-    return typeList;
-  
+  return typeList;
+}
+
+dynamic getEnumByName(List<Map<String, dynamic>> typeList, String name) {
+  try {
+    var tl = typeList.firstWhere((element) => element["name"] == name);
+    return tl;
+  } on StateError {
+    return {};
+  }
 }
 
 Future<Map<String, dynamic>> getAndSetAllEnumerations() {

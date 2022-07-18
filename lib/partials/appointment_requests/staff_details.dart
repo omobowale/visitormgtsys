@@ -40,11 +40,9 @@ class StaffDetails extends StatelessWidget {
           ),
           Container(
             child: Text(
-              host.username,
+              host.name,
               style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 16,
-              ),
+                  fontWeight: FontWeight.w500, fontSize: 16, color: Colors.red),
             ),
           ),
         ],

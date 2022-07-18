@@ -32,6 +32,8 @@ class LoginService {
           password: jsonData["data"]["password"],
           roles: jsonData["data"]["roles"],
           username: jsonData["data"]["username"],
+          firstname: jsonData["data"]["firstName"],
+          lastname: jsonData["data"]["lastName"],
           token: jsonData["token"],
         );
 

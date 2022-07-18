@@ -7,6 +7,8 @@ class User {
   String id;
   String password;
   String username;
+  String firstname;
+  String lastname;
   String email;
   String token;
   List<dynamic> roles;
@@ -15,6 +17,8 @@ class User {
     required this.id,
     required this.password,
     required this.username,
+    required this.firstname,
+    required this.lastname,
     required this.email,
     required this.roles,
     required this.token,
@@ -22,7 +26,14 @@ class User {
 
   factory User.emptyOne() {
     return User(
-        id: "", password: "", username: "", email: "", token: "", roles: []);
+        id: "",
+        password: "",
+        username: "",
+        firstname: "",
+        lastname: "",
+        email: "",
+        token: "",
+        roles: []);
   }
 
   @override
@@ -30,11 +41,26 @@ class User {
     return this.toJson().toString();
   }
 
+  bool isValid() {
+    return username != null &&
+        username != "" &&
+        email != null &&
+        email != "" &&
+        firstname != null &&
+        firstname != "" &&
+        lastname != null &&
+        lastname != "" &&
+        token != null &&
+        token != "";
+  }
+
   Map<String, dynamic> toJson() {
     return {
       "id": id,
       "password": password,
       "username": username,
+      "firstname": firstname,
+      "lastname": lastname,
       "roles": roles,
       "email": email,
       "token": token,
@@ -46,6 +72,8 @@ class User {
       id: user["id"],
       password: user["password"],
       username: user["username"],
+      firstname: user["firstName"],
+      lastname: user["lastName"],
       email: user["email"],
       roles: user["roles"],
       token: user["token"],

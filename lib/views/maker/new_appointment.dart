@@ -11,7 +11,7 @@ import 'package:vms/partials/common/bottom_fixed_section.dart';
 import 'package:vms/partials/new_appointment/date_time.dart';
 import 'package:vms/partials/new_appointment/group_head_search.dart';
 import 'package:vms/partials/new_appointment/host_section.dart';
-import 'package:vms/partials/new_appointment/visit_type.dart';
+import 'package:vms/partials/new_appointment/visit_purpose.dart';
 import 'package:vms/partials/common/top.dart';
 import 'package:vms/partials/new_appointment/visitor_type.dart';
 import 'package:vms/services/enum_service.dart';
@@ -28,27 +28,27 @@ class _NewAppointmentState extends State<NewAppointment> {
   EnumService get service => GetIt.I<EnumService>();
 
   late APIResponse<List<Enumeration>> _enumList;
-  bool visitTypeLoading = false;
+  bool visitPurposeLoading = false;
   bool visitorTypeLoading = false;
-  List<Map<String, dynamic>> visitTypesList = [];
+  List<Map<String, dynamic>> visitPurposesList = [];
   List<Map<String, dynamic>> visitorTypesList = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    visitPurposesList = getAndSetEnumeration(
+        context.read<LoginLogoutNotifier>().allEnums, "purposeEnum");
+    visitorTypesList = getAndSetEnumeration(
+        context.read<LoginLogoutNotifier>().allEnums, "visitorTypeEnum");
   }
 
   @override
   Widget build(BuildContext context) {
-    visitTypesList = getAndSetEnumeration(
-        context.read<LoginLogoutNotifier>().allEnums, "purposeEnum");
-    visitorTypesList = getAndSetEnumeration(
-        context.read<LoginLogoutNotifier>().allEnums, "visitorTypeEnum");
     //This will begin a new process if it has not already begun
     context.read<AppointmentNotifier>().addEmptyAppointment();
     return Scaffold(
-      body: visitTypeLoading
+      body: visitPurposeLoading
           ? Center(
               child: CircularProgressIndicator(
                 color: Palette.FBN_BLUE,
@@ -63,7 +63,7 @@ class _NewAppointmentState extends State<NewAppointment> {
                 Divider(),
                 VisitorType(visitorTypesList: visitorTypesList),
                 Divider(),
-                VisitType(visitTypesList: visitTypesList),
+                VisitPurpose(visitPurposesList: visitPurposesList),
                 Divider(),
                 HostSection(onComplete: (value) {}),
                 Divider(),
@@ -78,13 +78,6 @@ class _NewAppointmentState extends State<NewAppointment> {
                       Navigator.pushNamed(context, '/view');
                     },
                     fnTwo: () {
-                      context.read<AppointmentNotifier>().showAppointment(
-                          context.read<AppointmentNotifier>().appointments[0]);
-                      print("All appointment errors: " +
-                          context
-                              .read<AppointmentNotifier>()
-                              .allNewAppointmentErrors
-                              .toString());
                       context.read<AppointmentNotifier>().newAppointmentValid();
                       if (context
                           .read<AppointmentNotifier>()

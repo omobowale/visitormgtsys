@@ -27,8 +27,8 @@ class _CancelPurposeState extends State<CancelPurpose> {
   void initState() {
     // TODO: implement initState
     var newlist = getAndSetEnumeration(
-        context.read<LoginLogoutNotifier>().allEnums, "cancellationReasonEnum");
-    list = newlist.isEmpty ? list : newlist;
+        context.read<LoginLogoutNotifier>().allEnums, "çancellationReasonEnum");
+    list = (newlist == null || newlist.isEmpty) ? list : newlist;
 
     super.initState();
   }

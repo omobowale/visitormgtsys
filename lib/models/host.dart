@@ -4,22 +4,20 @@ import 'package:vms/models/room.dart';
 import 'package:vms/models/visitor.dart';
 
 class Host {
-  String id;
-  String username;
+  int id;
+  String name;
   String email;
+  String staffNo;
 
   Host({
     required this.id,
-    required this.username,
+    required this.name,
     required this.email,
+    required this.staffNo,
   });
 
   factory Host.emptyOne() {
-    return Host(
-      id: "",
-      username: "",
-      email: "",
-    );
+    return Host(id: 0, name: "", email: "", staffNo: "");
   }
 
   @override
@@ -30,16 +28,18 @@ class Host {
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "username": username,
+      "name": name,
       "email": email,
+      "staffNo": staffNo,
     };
   }
 
   static Host fromJson(Map<String, dynamic> host) {
     return Host(
       id: host["id"],
-      username: host["username"],
+      name: host["name"],
       email: host["email"],
+      staffNo: host["staffNo"],
     );
   }
 
@@ -52,7 +52,7 @@ class Host {
   }
 
   bool isValid() {
-    if (username != null && username != "") {
+    if (name != null && name != "") {
       return true;
     }
 
@@ -62,8 +62,8 @@ class Host {
   bool isStrictlyValid() {
     if (email != null &&
         email != "" &&
-        username != null &&
-        username != "" &&
+        name != null &&
+        name != "" &&
         id != "" &&
         id != "") {
       return true;
@@ -76,7 +76,8 @@ class Host {
     print("Host " + host.toString());
     return Host(
       email: host["email"],
-      username: host["username"],
+      name: host["name"],
+      staffNo: host["staffNo"],
       id: host["id"],
     );
   }

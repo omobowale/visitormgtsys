@@ -12,6 +12,7 @@ class VisitorAddress extends StatelessWidget {
   Widget build(BuildContext context) {
     AppointmentNotifier _appointmentNotifier =
         Provider.of<AppointmentNotifier>(context);
+
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: 20,
@@ -22,8 +23,7 @@ class VisitorAddress extends StatelessWidget {
         children: [
           CustomInputLabel(labelText: "Address"),
           CustomErrorLabel(
-              errorText:
-                  _appointmentNotifier.allVisitorInformationErrors["address"]),
+              errorText: _appointmentNotifier.allCurrentGuestErrors["address"]),
           CustomInputField(
             onComplete: (value) {
               _appointmentNotifier.addVisitorAddress(value);
@@ -31,7 +31,7 @@ class VisitorAddress extends StatelessWidget {
             },
             bordered: false,
             hintText: "Enter visitor address",
-            labelText: _appointmentNotifier.getCurrentGuest.address,
+            labelText: _appointmentNotifier.getNewGuest.address,
             minLines: 3,
             maxLines: 3,
           ),

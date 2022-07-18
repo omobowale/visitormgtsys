@@ -10,7 +10,8 @@ class Appointment {
   Host host;
   Location location;
   String visitType;
-  String appointmentType;
+  String visitPurpose;
+  String visitorType;
   DateTime startTime;
   DateTime endTime;
   DateTime appointmentDate;
@@ -23,23 +24,63 @@ class Appointment {
   String? purposeOfReschedule;
   String? purposeOfCancel;
 
-  Appointment(
-      {required this.id,
-      required this.host,
-      required this.visitType,
-      required this.startTime,
-      required this.groupHead,
-      required this.endTime,
-      required this.appointmentType,
-      required this.appointmentStatus,
-      required this.appointmentDate,
-      required this.floor,
-      required this.guests,
-      required this.meetingRoom,
-      required this.rooms,
-      required this.location,
-      this.purposeOfCancel,
-      this.purposeOfReschedule});
+  // {
+  // "data": {
+  //   "purposeEnum": {
+  //     "0": "Official",
+  //     "1": "Personal"
+  //   },
+  //   "visitTypeEnum": {
+  //     "0": "Individual",
+  //     "1": "Group"
+  //   },
+  //   "visitStatusEnum": {
+  //     "0": "Pending",
+  //     "1": "Approved",
+  //     "2": "Declined",
+  //     "3": "Cancelled",
+  //     "4": "Rescheduled"
+  //   },
+  //   "assetTypeEnum": {
+  //     "0": "Laptop",
+  //     "1": "iPad",
+  //     "2": "Others"
+  //   },
+  //   "visitorTypeEnum": {
+  //     "0": "Regular",
+  //     "1": "VVIP"
+  //   },
+  //   "appointmentStatusEnum": {
+  //     "0": "Active",
+  //     "1": "Closed"
+  //   },
+  //   "çancellationReasonEnum": {
+  //     "0": "Unable_to_get_Time_off",
+  //     "1": "Out_of_office",
+  //     "2": "Insecurity",
+  //     "3": "Inconvienent",
+  //     "4": "Others"
+  //   }
+
+  Appointment({
+    required this.id,
+    required this.host,
+    required this.visitType,
+    required this.startTime,
+    required this.groupHead,
+    required this.endTime,
+    required this.appointmentStatus,
+    required this.appointmentDate,
+    required this.visitPurpose,
+    required this.visitorType,
+    required this.floor,
+    required this.guests,
+    required this.meetingRoom,
+    required this.rooms,
+    required this.location,
+    this.purposeOfCancel,
+    this.purposeOfReschedule,
+  });
 
   void set setStartTime(DateTime time) {
     this.startTime = time;
@@ -63,9 +104,9 @@ class Appointment {
       "id": id,
       "host": host,
       "visitType": visitType,
+      "visitPurpose": visitPurpose,
       "startTime": startTime,
       "endTime": endTime,
-      "appointmentType": appointmentType,
       "appointmentStatus": appointmentStatus,
       "appointmentDate": appointmentDate,
       "floorNumber": floor,
@@ -86,6 +127,7 @@ class Appointment {
     if (item is Visitor) {
       return item.toMap();
     }
+
     if (item is Room) {
       return item.toMap();
     }

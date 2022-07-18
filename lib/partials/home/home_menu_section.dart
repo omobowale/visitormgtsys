@@ -11,7 +11,7 @@ class HomeMenuSection extends StatefulWidget {
 }
 
 class _HomeMenuSectionState extends State<HomeMenuSection> {
-  String username = "User";
+  String firstname = "User";
   late LoginLogoutNotifier _loginLogoutNotifier;
   bool isLoading = false;
 
@@ -28,7 +28,7 @@ class _HomeMenuSectionState extends State<HomeMenuSection> {
       setState(() {
         print(value.toString());
         isLoading = false;
-        username = value["username"];
+        firstname = value["firstname"];
       });
     });
   }
@@ -72,7 +72,7 @@ class _HomeMenuSectionState extends State<HomeMenuSection> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Hi " + user.username,
+                          "Hi " + user.firstname,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,

@@ -23,17 +23,16 @@ class VisitorType extends StatelessWidget {
           ),
           CustomErrorLabel(
             errorText:
-                _appointmentNotifier.allNewAppointmentErrors["appointmentType"],
+                _appointmentNotifier.allNewAppointmentErrors["visitorType"],
           ),
           ...visitorTypesList
               .map(
                 (e) => CustomRadioButton(
                   isClicked: (value) {
                     _appointmentNotifier.addVisitorType(value);
-                    _appointmentNotifier.removeError("appointmentType");
+                    _appointmentNotifier.removeError("visitorType");
                   },
-                  checkText:
-                      _appointmentNotifier.appointments[0].appointmentType,
+                  checkText: _appointmentNotifier.appointments[0].visitorType,
                   labelText: e["name"],
                   isAvailable: true,
                 ),

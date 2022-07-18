@@ -7,13 +7,14 @@ import 'package:vms/custom_widgets/custom_appointment_requests_card.dart';
 import 'package:vms/custom_widgets/custom_bottom_navigation_bar.dart';
 import 'package:vms/custom_widgets/custom_floating_action_button.dart';
 import 'package:vms/data/appointment_statuses.dart';
-import 'package:vms/helperfunctions/appointmentStatusExtractor.dart';
+import 'package:vms/helperfunctions/appointmentDetailsExtractor.dart';
 import 'package:vms/helperfunctions/custom_date_formatter.dart';
 import 'package:vms/helperfunctions/enumerationExtraction.dart';
 import 'package:vms/helperfunctions/modify_appointment.dart';
 import 'package:vms/models/api_response.dart';
 import 'package:vms/models/appointment.dart';
 import 'package:vms/models/appointment_request.dart';
+import 'package:vms/models/fetched_appointments.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 import 'package:vms/notifiers/login_logout_notifier.dart';
 import 'package:vms/notifiers/user_notifier.dart';
@@ -29,7 +30,7 @@ class AppointmentRequests extends StatefulWidget {
 }
 
 class _AppointmentRequestsState extends State<AppointmentRequests> {
-  late Future<APIResponse<List<Appointment>>> _appointmentList2;
+  late Future<APIResponse<List<FetchedAppointments>>> _appointmentList2;
 
   List<AppointmentRequest> appointmentRequests = [];
   AppointmentService get service => GetIt.I<AppointmentService>();
@@ -37,6 +38,7 @@ class _AppointmentRequestsState extends State<AppointmentRequests> {
   late bool isGH;
   bool isGHLoading = false;
   bool isLoading = false;
+  bool showApproveDeny = false;
   int noOfRequests = 0;
   late String GHId;
 
@@ -57,7 +59,10 @@ class _AppointmentRequestsState extends State<AppointmentRequests> {
     });
 
     GHId = _userNotifier.getGHId();
-    _appointmentList2 = service.getAppointments(context);
+    _appointmentList2 = (GHId != "" && GHId != null)
+        ? service.getAppointmentRequests(context)
+        : service.getAppointments(context);
+    showApproveDeny = (GHId != "" && GHId != null) ? true : false;
     statuses = getAndSetEnumeration(
         _loginLogoutNotifier.allEnums, "appointmentStatusEnum");
 
@@ -79,7 +84,7 @@ class _AppointmentRequestsState extends State<AppointmentRequests> {
               children: [
                 PageTitle(),
                 Divider(),
-                FutureBuilder<APIResponse<List<Appointment>>>(
+                FutureBuilder<APIResponse<List<FetchedAppointments>>>(
                   future: _appointmentList2,
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
@@ -94,51 +99,50 @@ class _AppointmentRequestsState extends State<AppointmentRequests> {
                         if (snapshot.hasData) {
                           if (snapshot.data != null) {
                             if (snapshot.data!.data != null) {
-                              APIResponse<List<Appointment>> data =
+                              APIResponse<List<FetchedAppointments>> data =
                                   snapshot.data!;
-                              List<Appointment> requestsData =
-                                  getGHRequests(data.data!, GHId);
+                              print("fetched data: ${data.data!}");
+                              List<FetchedAppointments> requestsData =
+                                  getGHRequests(data.data!, GHId, isGH);
 
                               return requestsData.isNotEmpty
                                   ? Column(
                                       children: requestsData
                                           .map((appointmentRequest) {
-                                      if (canModify(appointmentRequest) &&
-                                          canBeApproved(
-                                              appointmentRequest
-                                                  .appointmentStatus,
-                                              statuses)) {
                                         return AppointmentRequestsCard(
-                                          floor: appointmentRequest.floor,
-                                          meetingRoom:
-                                              appointmentRequest.meetingRoom,
-                                          location: appointmentRequest.location,
-                                          guests: appointmentRequest.guests,
-                                          groupHead:
-                                              appointmentRequest.groupHead,
-                                          appointmentId: appointmentRequest.id,
-                                          startTime:
-                                              appointmentRequest.startTime,
-                                          endTime: appointmentRequest.endTime,
-                                          officialityText:
-                                              appointmentRequest.visitType,
-                                          appointmentTypeText:
-                                              appointmentRequest
-                                                  .appointmentType,
-                                          date: appointmentRequest
-                                              .appointmentDate,
-                                          address:
-                                              appointmentRequest.location.name,
-                                          staffImagePath:
-                                              "assets/images/image_placeholder.jpg",
-                                          host: appointmentRequest.host,
-                                          noOfGuests:
-                                              appointmentRequest.guests.length,
-                                        );
-                                      } else {
-                                        return Container();
-                                      }
-                                    }).toList())
+                                            showApproveDeny: showApproveDeny,
+                                            floor: appointmentRequest.floor,
+                                            meetingRooms:
+                                                appointmentRequest.meetingRooms,
+                                            location:
+                                                appointmentRequest.location,
+                                            guests: appointmentRequest.visitors,
+                                            groupHead:
+                                                appointmentRequest.groupHead,
+                                            appointmentId: appointmentRequest
+                                                .appointmentId,
+                                            startTime:
+                                                appointmentRequest.startTime,
+                                            endTime: appointmentRequest.endTime,
+                                            visitPurpose:
+                                                appointmentRequest.visitPurpose,
+                                            visitorType: getVisitorType(
+                                                appointmentRequest),
+                                            date: appointmentRequest
+                                                .appointmentDate,
+                                            address:
+                                                appointmentRequest.location,
+                                            staffImagePath:
+                                                "assets/images/image_placeholder.jpg",
+                                            host: appointmentRequest.host,
+                                            noOfGuests: appointmentRequest
+                                                .visitors.length,
+                                            cancelReason: appointmentRequest
+                                                .cancellationReason,
+                                            visitStatus:
+                                                appointmentRequest.visitStatus);
+                                      }).toList(),
+                                    )
                                   : Center(
                                       child: Text(
                                         "No appointment requests",
@@ -197,11 +201,16 @@ class _AppointmentRequestsState extends State<AppointmentRequests> {
           );
   }
 
-  List<Appointment> getGHRequests(List<Appointment> list, String ghId) {
+  List<FetchedAppointments> getGHRequests(
+      List<FetchedAppointments> list, String ghId, bool isGH) {
+    if (!isGH) {
+      return list;
+    }
     try {
       return list.where((element) {
-        return element.appointmentStatus == PENDING &&
-            ghId == element.groupHead.id;
+        return element.visitStatus.toLowerCase() != "approved" &&
+            element.visitStatus.toLowerCase() != "cancelled" &&
+            ghId == element.groupHead.id.toString();
       }).toList();
     } on StateError {
       return [];

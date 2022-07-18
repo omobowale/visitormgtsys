@@ -27,7 +27,7 @@ class _CustomHostNameState extends State<CustomHostName> {
     AppointmentNotifier _appointmentNotifier =
         Provider.of<AppointmentNotifier>(context, listen: true);
     String staffName =
-        context.read<AppointmentNotifier>().appointments[0].host.username;
+        context.read<AppointmentNotifier>().appointments[0].host.name;
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: 20,
@@ -53,7 +53,7 @@ class _CustomHostNameState extends State<CustomHostName> {
                       .read<AppointmentNotifier>()
                       .appointments[0]
                       .host
-                      .username;
+                      .name;
                 });
                 context.read<AppointmentNotifier>().removeError("host");
               }
@@ -101,11 +101,7 @@ class HostNameSearch extends SearchDelegate<Host> {
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-    Host host = Host(
-      id: "",
-      username: "",
-      email: "",
-    );
+    Host host = Host.emptyOne();
 
     return [
       IconButton(
@@ -128,11 +124,7 @@ class HostNameSearch extends SearchDelegate<Host> {
 
   @override
   Widget? buildLeading(BuildContext context) {
-    Host host = Host(
-      id: "",
-      username: "",
-      email: "",
-    );
+    Host host = Host.emptyOne();
 
     return IconButton(
       onPressed: () {
@@ -190,7 +182,7 @@ class HostNameSearch extends SearchDelegate<Host> {
   Widget buildSuggestionsSuccess(List<Host> suggestions) {
     var suggestedHosts = suggestions.where((host) {
       final queryText = query.toLowerCase();
-      final ghText = host.username.toLowerCase();
+      final ghText = host.name.toLowerCase();
       return ghText.startsWith(queryText);
     }).toList();
 
@@ -199,14 +191,14 @@ class HostNameSearch extends SearchDelegate<Host> {
       itemCount: suggestedHosts.length,
       itemBuilder: (context, index) {
         final suggestion = suggestedHosts[index];
-        final queryText = suggestion.username.substring(0, query.length);
-        final remainingText = suggestion.username.substring(query.length);
+        final queryText = suggestion.name.substring(0, query.length);
+        final remainingText = suggestion.name.substring(query.length);
         return ListTile(
           tileColor: Palette.CUSTOM_WHITE,
           contentPadding: EdgeInsets.all(4),
           minVerticalPadding: 3,
           onTap: () {
-            query = suggestion.username;
+            query = suggestion.name;
             close(context, suggestion);
           },
           leading: Icon(Icons.person),
@@ -238,7 +230,7 @@ class HostNameSearch extends SearchDelegate<Host> {
               children: [
                 Text(suggestion.email),
                 Text(
-                  suggestion.id,
+                  suggestion.id.toString(),
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ],

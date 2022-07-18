@@ -6,17 +6,16 @@ import 'package:vms/models/location.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 
 class DetailsSummaryLocation extends StatefulWidget {
-  final Floor? floor;
-  final Location? location;
-  final List<dynamic>? roomNumbers;
-  final String? meetingRoom;
+  final String? floor;
+  final String? location;
+
+  final String? meetingRooms;
 
   const DetailsSummaryLocation({
     Key? key,
     this.location,
     this.floor,
-    this.roomNumbers,
-    this.meetingRoom,
+    this.meetingRooms,
   }) : super(key: key);
 
   @override
@@ -24,24 +23,18 @@ class DetailsSummaryLocation extends StatefulWidget {
 }
 
 class _DetailsSummaryLocationState extends State<DetailsSummaryLocation> {
-  List<dynamic> rooms = [];
-  late Location location;
-  late Floor floor;
-  late String meetingRoom;
+  late String location;
+  late String floor;
+  late String meetingRooms;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    rooms = widget.roomNumbers ??
-        context.read<AppointmentNotifier>().appointments[0].rooms;
-    location = widget.location ??
-        context.read<AppointmentNotifier>().appointments[0].location;
-    meetingRoom = widget.meetingRoom ??
-        context.read<AppointmentNotifier>().appointments[0].meetingRoom;
-    floor = widget.floor ??
-        context.read<AppointmentNotifier>().appointments[0].floor;
+    location = widget.location ?? '';
+    meetingRooms = widget.meetingRooms ?? '';
+    floor = widget.floor ?? '';
   }
 
   @override
@@ -54,23 +47,19 @@ class _DetailsSummaryLocationState extends State<DetailsSummaryLocation> {
         children: [
           CustomTextTitle(title: "Location"),
           Text(
-            "${location.name} [${floor.name}]",
+            "${location} [${floor}]",
             style: TextStyle(
               fontWeight: FontWeight.w500,
             ),
           ),
-          Text(
-            "${meetingRoom}",
-            style: TextStyle(),
-          ),
-          // ...rooms.map(
-          //   (e) {
-          //     return Text(
-          //       e.name,
-          //       style: TextStyle(),
-          //     );
-          //   },
-          // )
+          ...meetingRooms.split(',').map(
+            (e) {
+              return Text(
+                e,
+                style: TextStyle(),
+              );
+            },
+          )
         ],
       ),
     );

@@ -22,7 +22,8 @@ class HostNameService {
           var host = Host(
             id: item["id"],
             email: item["email"],
-            username: item["username"],
+            staffNo: item["staffNo"],
+            name: item["name"],
           );
           hosts.add(host);
         }

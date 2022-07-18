@@ -6,15 +6,15 @@ import 'package:vms/notifiers/appointment_notifier.dart';
 import 'package:vms/partials/common/summary_footer_timestamp.dart';
 import 'package:vms/partials/common/summary_footer_timestamp_with_array.dart';
 
-class DetailsSummaryGuests extends StatefulWidget {
+class SummaryGuests extends StatefulWidget {
   final List<dynamic>? guests;
-  DetailsSummaryGuests({Key? key, this.guests}) : super(key: key);
+  SummaryGuests({Key? key, this.guests}) : super(key: key);
 
   @override
-  State<DetailsSummaryGuests> createState() => _DetailsSummaryGuestsState();
+  State<SummaryGuests> createState() => _SummaryGuestsState();
 }
 
-class _DetailsSummaryGuestsState extends State<DetailsSummaryGuests> {
+class _SummaryGuestsState extends State<SummaryGuests> {
   late List<dynamic> guests;
   late AppointmentNotifier _appointmentNotifier;
 
@@ -24,7 +24,8 @@ class _DetailsSummaryGuestsState extends State<DetailsSummaryGuests> {
     super.initState();
     _appointmentNotifier =
         Provider.of<AppointmentNotifier>(context, listen: false);
-    guests = widget.guests ?? _appointmentNotifier.getValidGuests();
+    guests = widget.guests ?? _appointmentNotifier.appointments[0].guests;
+    print("guests: ${guests}");
   }
 
   @override
@@ -69,12 +70,19 @@ class _DetailsSummaryGuestsState extends State<DetailsSummaryGuests> {
                               ],
                             ),
                           ),
+                          SizedBox(width: 5),
                         ],
                       ),
                       Container(
                         child: Text(
                           "${e.email}, ${e.phoneNumber}",
-                          // overflow: TextOverflow.ellipsis,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        child: Text(
+                          "${e.address}",
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

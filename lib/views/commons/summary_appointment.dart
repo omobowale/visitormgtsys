@@ -3,43 +3,44 @@ import 'package:provider/provider.dart';
 import 'package:vms/custom_classes/palette.dart';
 import 'package:vms/custom_widgets/custom_text_with_background.dart';
 import 'package:vms/data/appointment_statuses.dart';
-
-import 'package:vms/helperfunctions/appointmentStatusExtractor.dart';
+import 'package:vms/helperfunctions/appointmentDetailsExtractor.dart';
 import 'package:vms/helperfunctions/custom_date_formatter.dart';
 import 'package:vms/helperfunctions/enumerationExtraction.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 import 'package:vms/notifiers/login_logout_notifier.dart';
 import 'package:vms/partials/common/summary_footer_timestamp.dart';
 
-class DetailsSummaryAppointment extends StatefulWidget {
+class SummaryAppointment extends StatefulWidget {
   final bool isSummary;
   final String? visitType;
-  final String? appointmentType;
+  final String? visitorType;
   final int? appointmentStatus;
   final String? appointmentDate;
+  final String? visitPurpose;
   final String? startTime;
   final String? endTime;
 
-  DetailsSummaryAppointment({
+  SummaryAppointment({
     Key? key,
     required this.isSummary,
     this.visitType,
-    this.appointmentType,
+    this.visitorType,
     this.appointmentStatus,
+    this.visitPurpose,
     this.appointmentDate,
     this.startTime,
     this.endTime,
   }) : super(key: key);
 
   @override
-  State<DetailsSummaryAppointment> createState() =>
-      _DetailsSummaryAppointmentState();
+  State<SummaryAppointment> createState() => _SummaryAppointmentState();
 }
 
-class _DetailsSummaryAppointmentState extends State<DetailsSummaryAppointment> {
+class _SummaryAppointmentState extends State<SummaryAppointment> {
   late String visitType;
   late int appointmentStatus;
-  late String appointmentType;
+  late String visitorType;
+  late String visitPurpose;
   late String appointmentDate;
   late String startTime;
   late String endTime;
@@ -51,16 +52,18 @@ class _DetailsSummaryAppointmentState extends State<DetailsSummaryAppointment> {
   @override
   void initState() {
     appointmentStatuses = getAndSetEnumeration(
-        context.read<LoginLogoutNotifier>().allEnums, "visitStatusEnum");
+        context.read<LoginLogoutNotifier>().allEnums, "appointmentStatusEnum");
+    print("appointment statuses: ${appointmentStatuses}");
+    print("enum by name: ${getEnumByName(appointmentStatuses, "Active")}");
 
     _appointmentNotifier =
         Provider.of<AppointmentNotifier>(context, listen: false);
     visitType =
         widget.visitType ?? _appointmentNotifier.appointments[0].visitType;
-    appointmentStatus = widget.appointmentStatus ??
-        _appointmentNotifier.appointments[0].appointmentStatus;
-    appointmentType = widget.appointmentType ??
-        _appointmentNotifier.appointments[0].appointmentType;
+    visitPurpose = widget.visitPurpose ??
+        _appointmentNotifier.appointments[0].visitPurpose;
+    visitorType =
+        widget.visitorType ?? _appointmentNotifier.appointments[0].visitorType;
     startTime = widget.startTime ??
         CustomDateFormatter.getFormattedTime(
             _appointmentNotifier.appointments[0].startTime);
@@ -87,7 +90,7 @@ class _DetailsSummaryAppointmentState extends State<DetailsSummaryAppointment> {
           child: Row(
             children: [
               CustomTextWithBackground(
-                text: visitType.toUpperCase(),
+                text: visitPurpose.toUpperCase(),
                 textColor: Palette.CUSTOM_WHITE,
                 backgroundColor: Palette.FBN_BLUE,
                 fn: () {},
@@ -96,7 +99,7 @@ class _DetailsSummaryAppointmentState extends State<DetailsSummaryAppointment> {
                 width: 5,
               ),
               CustomTextWithBackground(
-                text: appointmentType.toUpperCase(),
+                text: visitorType.toUpperCase(),
                 textColor: Palette.FBN_BLUE,
                 backgroundColor: Palette.CUSTOM_YELLOW,
                 fn: () {},
@@ -105,16 +108,9 @@ class _DetailsSummaryAppointmentState extends State<DetailsSummaryAppointment> {
                 width: 5,
               ),
               CustomTextWithBackground(
-                text: selectedAppointmentStatusEnum(
-                        appointmentStatus, appointmentStatuses)["name"]
-                    .toUpperCase(),
+                text: "Pending".toUpperCase(),
                 textColor: Palette.CUSTOM_WHITE,
-                backgroundColor: selectedAppointmentStatusEnum(
-                                appointmentStatus, appointmentStatuses)["name"]
-                            .toLowerCase() ==
-                        "approved"
-                    ? Palette.FBN_GREEN
-                    : Palette.FBN_ORANGE,
+                backgroundColor: Palette.FBN_ORANGE,
                 fn: () {},
               ),
             ],

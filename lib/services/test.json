@@ -1,21 +1,22 @@
 {
     "visit": {
-        "dateAndTime": "2022-07-11T02:04:16.407262",
+        "dateAndTime": "2022-07-15T00:00:00.000",
         "visitPurpose": 0,
-        "visitType": "Official",
-        "startTime": "2022-07-11T09:00:00.000",
-        "endTime": "2022-07-11T09:30:00.000",
-        "host": "asdf",
+        "visitType": 0,
+        "startTime": "2022-07-15T09:00:00.000",
+        "endTime": "2022-07-15T09:30:00.000",
+        "host": "emi",
         "locationId": 1,
         "floorId": 1,
-        "meetingRoom": "asdf",
+        "meetingRooms": "myy",
         "visitors": [
             {
-                "firstName": "asd",
-                "lastName": "qsdaf",
-                "phoneNumber": "08074532345",
-                "email": "stig@gmail.com",
-                "address": "Fola",
+                "id": "",
+                "firstName": "asdf",
+                "lastName": "asdfds",
+                "phoneNumber": "08064402809",
+                "email": "stiga@gmail.com",
+                "address": "sdfasdfads",
                 "visitorType": 0,
                 "hasPersonalAsset": true
             }

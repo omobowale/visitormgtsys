@@ -12,6 +12,7 @@ import 'package:vms/partials/new_appointment/purpose_of_reschedule.dart';
 import 'package:vms/services/appointment_service.dart';
 import 'package:vms/views/maker/details.dart';
 import 'package:vms/views/view.dart';
+import 'package:vms/models/cancel_appointment.dart' as CancelApt;
 
 class CancelAppointment extends StatefulWidget {
   const CancelAppointment({Key? key}) : super(key: key);
@@ -68,8 +69,16 @@ class _CancelAppointmentState extends State<CancelAppointment> {
                       context.read<AppointmentNotifier>().appointments[0];
                   appointment.appointmentStatus = CANCEL;
 
-                  modifyAppointment(CANCEL, appointment, context, service,
-                      setState, updateLoading, "/appointment_updated");
+                  CancelApt.CancelAppointment cancelDetails =
+                      CancelApt.CancelAppointment(
+                          reason: appointment.purposeOfCancel!,
+                          visitId: int.tryParse(appointment.id) ?? 0);
+
+                  cancelAppointment(cancelDetails, service, context,
+                      '/appointment_updated_success', setState, updateLoading);
+
+                  // modifyAppointment(CANCEL, appointment, context, service,
+                  //     setState, updateLoading, "/appointment_updated");
                 } else {
                   print("There is an error");
                 }

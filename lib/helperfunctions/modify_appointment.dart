@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:vms/custom_classes/palette.dart';
 import 'package:vms/data/appointment_statuses.dart';
 import 'package:vms/models/appointment.dart';
+import 'package:vms/models/approve_appointment.dart';
+import 'package:vms/models/cancel_appointment.dart';
 import 'package:vms/models/group_head.dart';
+import 'package:vms/models/reschedule_appointment.dart';
 import 'package:vms/models/visitor.dart';
 
 final PENDING = 0;
@@ -24,12 +27,179 @@ List<dynamic> extractReasons(List<Map<String, dynamic>>? cancelPurposes) {
   return [];
 }
 
-bool canModify(Appointment appointment) {
-  DateTime endTime = appointment.endTime;
+bool canModify(DateTime endTime, bool isCancelled) {
+  return endTime.isAfter(DateTime.now()) && !isCancelled;
+}
 
-  return endTime.isAfter(DateTime.now()) &&
-      (appointment.appointmentStatus != CANCEL &&
-          appointment.appointmentStatus != DENY);
+cancelAppointment(
+    CancelAppointment cancelDetails,
+    dynamic service,
+    dynamic context,
+    String redirectLocation,
+    Function setState,
+    bool updateLoading) async {
+  service.cancelAppointment(cancelDetails, context).then((result) {
+    print("appointment id is : ${cancelDetails.visitId} ");
+    print("result: ${result.data}");
+    setState(() {
+      updateLoading = false;
+    });
+    var title;
+    var text;
+    if (result.data != null) {
+      title = "Success";
+      text = "Appointment has been cancelled";
+    } else {
+      title = "Error";
+      text = "Appointment could not be cancelled. Please try again later";
+    }
+    showDialog<String>(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => updateLoading
+          ? AlertDialog(
+              content: Container(
+                height: 50,
+                width: 50,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Palette.FBN_BLUE,
+                  ),
+                ),
+              ),
+            )
+          : AlertDialog(
+              title: Text(title),
+              content: Text(text),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, redirectLocation);
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Palette.FBN_BLUE,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  });
+}
+
+rescheduleAppointment(
+    RescheduleAppointment rescheduleDetails,
+    dynamic service,
+    dynamic context,
+    String redirectLocation,
+    Function setState,
+    bool updateLoading) async {
+  service.rescheduleAppointment(rescheduleDetails).then((result) {
+    print("appointment id is : ${rescheduleDetails.visitId} ");
+    setState(() {
+      updateLoading = false;
+    });
+    var title;
+    var text;
+    if (result.data != null) {
+      title = "Success";
+      text = "Appointment has been rescheduled";
+    } else {
+      title = "Error";
+      text = "Appointment could not be rescheduled. Please try again later";
+    }
+    showDialog<String>(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => updateLoading
+          ? AlertDialog(
+              content: Container(
+                height: 50,
+                width: 50,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Palette.FBN_BLUE,
+                  ),
+                ),
+              ),
+            )
+          : AlertDialog(
+              title: Text(title),
+              content: Text(text),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, redirectLocation);
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Palette.FBN_BLUE,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  });
+}
+
+approveAppointment(
+    ApproveAppointment approveDetails,
+    dynamic service,
+    dynamic context,
+    String redirectLocation,
+    Function setState,
+    bool updateLoading) async {
+  service.approveAppointment(approveDetails, context).then((result) {
+    setState(() {
+      updateLoading = false;
+    });
+    var title;
+    var text;
+    if (result.data != null) {
+      title = "Success";
+      text = "Appointment has been approved";
+    } else {
+      title = "Error";
+      text = "Appointment could not be approved. Please try again later";
+    }
+    showDialog<String>(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => updateLoading
+          ? AlertDialog(
+              content: Container(
+                height: 50,
+                width: 50,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Palette.FBN_BLUE,
+                  ),
+                ),
+              ),
+            )
+          : AlertDialog(
+              title: Text(title),
+              content: Text(text),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, redirectLocation);
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Palette.FBN_BLUE,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+    );
+  });
 }
 
 modifyAppointment(

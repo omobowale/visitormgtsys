@@ -37,19 +37,33 @@ void logUserIn(
         return;
       }
       if (value.data != null) {
-        var newUser = value.data ?? null;
-
-        context.read<LoginLogoutNotifier>().logUserIn(newUser!).then(
-          (value) {
-            print(context.read<LoginLogoutNotifier>().isLoggedIn);
-            context.read<UserNotifier>().getAndSetUserRoles().then(
-              (value) {
-                print("value from login: ${value}");
-                Navigator.pushNamed(context, '/home');
-              },
-            );
-          },
-        );
+        if (value.data!.isValid()) {
+          var newUser = value.data ?? null;
+          context.read<LoginLogoutNotifier>().logUserIn(newUser!).then(
+            (value) {
+              print(context.read<LoginLogoutNotifier>().isLoggedIn);
+              context.read<UserNotifier>().getAndSetUserRoles().then(
+                (value) {
+                  print("value from login: ${value}");
+                  Navigator.pushNamed(context, '/home');
+                },
+              );
+            },
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CustomAlertDialogBox(
+                color: Colors.red,
+                textTitle: "Error",
+                redirectLocation: '/login',
+                textContent: "Invalid user details",
+                function: () {},
+              );
+            },
+          );
+        }
       } else {
         showDialog(
           context: context,

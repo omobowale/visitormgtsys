@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:vms/constants/index.dart';
 import 'package:vms/models/api_response.dart';
 import 'package:vms/models/appointment.dart';
 import 'package:http/http.dart' as http;
@@ -43,6 +44,12 @@ class GroupHeadService {
       print(error);
       return APIResponse<List<GroupHead>>(
           error: true, errorMessage: "Error fetching group heads");
-    });
+    }).timeout(
+      Duration(milliseconds: DELAY),
+      onTimeout: () {
+        return APIResponse<List<GroupHead>>(
+            data: [], error: true, errorMessage: "Error fetching group heads");
+      },
+    );
   }
 }

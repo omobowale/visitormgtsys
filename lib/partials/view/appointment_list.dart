@@ -4,18 +4,19 @@ import 'package:provider/provider.dart';
 import 'package:vms/custom_widgets/custom_appointment_day_date.dart';
 import 'package:vms/custom_widgets/custom_appointment_list_item.dart';
 import 'package:vms/data/appointment_statuses.dart';
-import 'package:vms/helperfunctions/appointmentStatusExtractor.dart';
+import 'package:vms/helperfunctions/appointmentDetailsExtractor.dart';
 import 'package:vms/helperfunctions/custom_date_formatter.dart';
 import 'package:vms/helperfunctions/custom_string_manipulations.dart';
 import 'package:vms/helperfunctions/enumerationExtraction.dart';
 import 'package:vms/models/api_response.dart';
 import 'package:vms/models/appointment.dart';
+import 'package:vms/models/fetched_appointments.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 import 'package:vms/notifiers/login_logout_notifier.dart';
 import 'package:vms/services/appointment_service.dart';
 
 class AppointmentList extends StatefulWidget {
-  List<Appointment> appointmentList;
+  List<FetchedAppointments> appointmentList;
 
   AppointmentList({Key? key, required this.appointmentList}) : super(key: key);
 
@@ -68,25 +69,25 @@ class _AppointmentListState extends State<AppointmentList> {
   Widget build(BuildContext context) {
     return Container(
       child: Column(children: [
-        ...widget.appointmentList.map((appointment) {
+        ...widget.appointmentList.map((fetchedAppointment) {
           return AppointmentListItem(
-            appointmentId: appointment.id,
-            isApproved: getIsApproved(
-                appointment.appointmentStatus, appointmentStatuses),
-            isCancelled: getIsCancelled(
-                appointment.appointmentStatus, appointmentStatuses),
-            startTime:
-                CustomDateFormatter.getFormattedTime(appointment.startTime),
-            endTime: CustomDateFormatter.getFormattedTime(appointment.endTime),
-            appointmentType: appointment.appointmentType,
-            visitorName: appointment.guests.length > 1
-                ? appointment.guests.toList().length.toString() + " visitors"
-                : appointment.guests.length == 0
+            appointmentId: fetchedAppointment.appointmentId.toString(),
+            isApproved: fetchedAppointment.isApproved,
+            isCancelled: fetchedAppointment.isCancelled,
+            startTime: CustomDateFormatter.getFormattedTime(
+                fetchedAppointment.startTime),
+            endTime: CustomDateFormatter.getFormattedTime(
+                fetchedAppointment.endTime),
+            appointmentType: fetchedAppointment.visitType,
+            visitorName: fetchedAppointment.visitors.length > 1
+                ? fetchedAppointment.visitors.toList().length.toString() +
+                    " visitors"
+                : fetchedAppointment.visitors.length == 0
                     ? ""
                     : CustomStringManipulation.getFullName(
-                        appointment.guests[0].firstName,
-                        appointment.guests[0].lastName),
-            isGroupVisit: appointment.guests.length > 1 ? true : false,
+                        fetchedAppointment.visitors[0].firstName,
+                        fetchedAppointment.visitors[0].lastName),
+            isGroupVisit: fetchedAppointment.visitors.length > 1 ? true : false,
           );
         }).toList()
       ]),

@@ -5,9 +5,9 @@ import 'package:vms/custom_widgets/custom_input_label.dart';
 import 'package:vms/custom_widgets/custom_radio_button.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 
-class VisitType extends StatelessWidget {
-  List<Map<String, dynamic>> visitTypesList;
-  VisitType({required this.visitTypesList});
+class VisitPurpose extends StatelessWidget {
+  List<Map<String, dynamic>> visitPurposesList;
+  VisitPurpose({required this.visitPurposesList});
 
   @override
   Widget build(BuildContext context) {
@@ -21,19 +21,19 @@ class VisitType extends StatelessWidget {
         children: [
           Container(
             child: CustomInputLabel(
-              labelText: "Appointment Purpose",
+              labelText: "Visit Purpose",
             ),
           ),
           CustomErrorLabel(
               errorText:
-                  _appointmentNotifier.allNewAppointmentErrors["visitType"]),
-          ...visitTypesList.map((e) {
+                  _appointmentNotifier.allNewAppointmentErrors["visitPurpose"]),
+          ...visitPurposesList.map((e) {
             return CustomRadioButton(
                 isClicked: (value) {
-                  _appointmentNotifier.addVisitType(value);
-                  _appointmentNotifier.removeError("visitType");
+                  _appointmentNotifier.addVisitPurpose(value);
+                  _appointmentNotifier.removeError("visitPurpose");
                 },
-                checkText: _appointmentNotifier.appointments[0].visitType,
+                checkText: _appointmentNotifier.appointments[0].visitPurpose,
                 labelText: e["name"],
                 isAvailable: true);
           }).toList(),

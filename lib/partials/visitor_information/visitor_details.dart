@@ -5,11 +5,14 @@ import 'package:vms/custom_widgets/custom_input_field.dart';
 import 'package:vms/custom_widgets/custom_input_label.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 
-class VisitorDetails extends StatelessWidget {
+class VisitorDetails extends StatefulWidget {
+  @override
+  State<VisitorDetails> createState() => _VisitorDetailsState();
+}
+
+class _VisitorDetailsState extends State<VisitorDetails> {
   @override
   Widget build(BuildContext context) {
-    AppointmentNotifier _appointmentNotifier =
-        Provider.of<AppointmentNotifier>(context);
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
       child: Column(children: [
@@ -24,17 +27,24 @@ class VisitorDetails extends StatelessWidget {
                   children: [
                     CustomInputLabel(labelText: "First name"),
                     CustomErrorLabel(
-                        errorText: _appointmentNotifier
-                            .allVisitorInformationErrors["firstName"]),
+                        errorText: context
+                            .watch<AppointmentNotifier>()
+                            .allCurrentGuestErrors["firstName"]),
                     CustomInputField(
                       onComplete: (value) {
-                        _appointmentNotifier.addVisitorFirstName(value);
-                        _appointmentNotifier.removeError("firstName");
+                        context
+                            .read<AppointmentNotifier>()
+                            .addVisitorFirstName(value);
+                        context
+                            .read<AppointmentNotifier>()
+                            .removeError("firstName");
                       },
                       bordered: false,
                       hintText: "Enter First Name",
-                      labelText: _appointmentNotifier
-                          .appointments[0].guests[0].firstName,
+                      labelText: context
+                          .watch<AppointmentNotifier>()
+                          .getNewGuest
+                          .firstName,
                     ),
                   ],
                 ),
@@ -50,17 +60,24 @@ class VisitorDetails extends StatelessWidget {
                   children: [
                     CustomInputLabel(labelText: "Last name"),
                     CustomErrorLabel(
-                        errorText: _appointmentNotifier
-                            .allVisitorInformationErrors["lastName"]),
+                        errorText: context
+                            .watch<AppointmentNotifier>()
+                            .allCurrentGuestErrors["lastName"]),
                     CustomInputField(
                       onComplete: (value) {
-                        _appointmentNotifier.addVisitorLastName(value);
-                        _appointmentNotifier.removeError("lastName");
+                        context
+                            .read<AppointmentNotifier>()
+                            .addVisitorLastName(value);
+                        context
+                            .read<AppointmentNotifier>()
+                            .removeError("lastName");
                       },
                       bordered: false,
                       hintText: "Enter Last name",
-                      labelText: _appointmentNotifier
-                          .appointments[0].guests[0].lastName,
+                      labelText: context
+                          .watch<AppointmentNotifier>()
+                          .getNewGuest
+                          .lastName,
                     ),
                   ],
                 ),
@@ -75,17 +92,24 @@ class VisitorDetails extends StatelessWidget {
             children: [
               CustomInputLabel(labelText: "Phone number"),
               CustomErrorLabel(
-                  errorText: _appointmentNotifier
-                      .allVisitorInformationErrors["phoneNumber"]),
+                  errorText: context
+                      .watch<AppointmentNotifier>()
+                      .allCurrentGuestErrors["phoneNumber"]),
               CustomInputField(
                 onComplete: (value) {
-                  _appointmentNotifier.addVisitorPhoneNumber(value);
-                  _appointmentNotifier.removeError("phoneNumber");
+                  context
+                      .read<AppointmentNotifier>()
+                      .addVisitorPhoneNumber(value);
+                  context
+                      .read<AppointmentNotifier>()
+                      .removeError("phoneNumber");
                 },
                 bordered: false,
                 hintText: "Enter Phone Number",
-                labelText:
-                    _appointmentNotifier.appointments[0].guests[0].phoneNumber,
+                labelText: context
+                    .watch<AppointmentNotifier>()
+                    .getNewGuest
+                    .phoneNumber,
               ),
             ],
           ),
@@ -97,16 +121,18 @@ class VisitorDetails extends StatelessWidget {
             children: [
               CustomInputLabel(labelText: "Email"),
               CustomErrorLabel(
-                  errorText: _appointmentNotifier
-                      .allVisitorInformationErrors["email"]),
+                  errorText: context
+                      .watch<AppointmentNotifier>()
+                      .allCurrentGuestErrors["email"]),
               CustomInputField(
                 onComplete: (value) {
-                  _appointmentNotifier.addVisitorEmail(value);
-                  _appointmentNotifier.removeError("email");
+                  context.read<AppointmentNotifier>().addVisitorEmail(value);
+                  context.read<AppointmentNotifier>().removeError("email");
                 },
                 bordered: false,
                 hintText: "Enter Email",
-                labelText: _appointmentNotifier.appointments[0].guests[0].email,
+                labelText:
+                    context.watch<AppointmentNotifier>().getNewGuest.email,
               ),
             ],
           ),

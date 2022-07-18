@@ -18,7 +18,7 @@ class _HostSectionState extends State<HostSection> {
   @override
   Widget build(BuildContext context) {
     String staffName =
-        context.watch<AppointmentNotifier>().appointments[0].host.username;
+        context.watch<AppointmentNotifier>().appointments[0].host.name;
     AppointmentNotifier _appointmentNotifier =
         Provider.of<AppointmentNotifier>(context, listen: true);
     return Container(
@@ -38,10 +38,10 @@ class _HostSectionState extends State<HostSection> {
             onComplete: (value) async {
               await widget.onComplete(value);
               Host currentHost = _appointmentNotifier.appointments[0].host;
-              currentHost.username = value;
+              currentHost.name = value;
               _appointmentNotifier.addHost(currentHost);
               print("staff name ==> : " +
-                  _appointmentNotifier.appointments[0].host.username);
+                  _appointmentNotifier.appointments[0].host.name);
               _appointmentNotifier.removeError("host");
             },
           ),
