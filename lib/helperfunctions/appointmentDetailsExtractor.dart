@@ -1,4 +1,5 @@
 import 'package:vms/models/fetched_appointments.dart';
+import 'package:vms/models/floor.dart';
 
 Map<String, dynamic> selectedAppointmentStatusEnum(
     int appointmentStatus, List<Map<String, dynamic>> statuses) {
@@ -37,4 +38,45 @@ String getVisitorType(FetchedAppointments? fetchedAppointment) {
   }
 
   return '-';
+}
+
+List<dynamic> getRooms(List<dynamic> locations) {
+  List<dynamic> rooms = [];
+
+  locations.forEach((l) {
+    rooms.add(l.meetingRoom);
+  });
+
+  return rooms;
+}
+
+String getFloorFromRoomName(List<dynamic> locations, String meetingRoom) {
+  dynamic floor;
+  try {
+    locations.forEach((l) {
+      if (l.meetingRoom == meetingRoom) {
+        floor = l.floorName;
+      }
+    });
+    return floor;
+  } on Error {
+    print("There was an error getting floor");
+    return '';
+  }
+}
+
+dynamic getLocationDetailsFromRoomName(
+    List<dynamic> locations, String meetingRoom) {
+  dynamic locationDetails;
+  try {
+    locations.forEach((l) {
+      if (l.meetingRoom == meetingRoom) {
+        locationDetails = l;
+      }
+    });
+    return locationDetails;
+  } on Error {
+    print("There was an error getting floor");
+    return {};
+  }
 }

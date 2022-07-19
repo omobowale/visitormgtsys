@@ -27,7 +27,7 @@ class _CustomHostNameState extends State<CustomHostName> {
     AppointmentNotifier _appointmentNotifier =
         Provider.of<AppointmentNotifier>(context, listen: true);
     String staffName =
-        context.read<AppointmentNotifier>().appointments[0].host.name;
+        context.read<AppointmentNotifier>().appointments[0].host.staffName;
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: 20,
@@ -53,7 +53,7 @@ class _CustomHostNameState extends State<CustomHostName> {
                       .read<AppointmentNotifier>()
                       .appointments[0]
                       .host
-                      .name;
+                      .staffName;
                 });
                 context.read<AppointmentNotifier>().removeError("host");
               }
@@ -101,7 +101,7 @@ class HostNameSearch extends SearchDelegate<Host> {
 
   @override
   List<Widget>? buildActions(BuildContext context) {
-    Host host = Host.emptyOne();
+    Host initialHost = context.read<AppointmentNotifier>().appointments[0].host;
 
     return [
       IconButton(
@@ -109,7 +109,7 @@ class HostNameSearch extends SearchDelegate<Host> {
           if (query.isEmpty) {
             close(
               context,
-              host,
+              initialHost,
             );
           } else {
             query = '';
@@ -124,13 +124,13 @@ class HostNameSearch extends SearchDelegate<Host> {
 
   @override
   Widget? buildLeading(BuildContext context) {
-    Host host = Host.emptyOne();
+    Host initialHost = context.read<AppointmentNotifier>().appointments[0].host;
 
     return IconButton(
       onPressed: () {
         return close(
           context,
-          host,
+          initialHost,
         );
       },
       icon: Icon(
@@ -182,7 +182,7 @@ class HostNameSearch extends SearchDelegate<Host> {
   Widget buildSuggestionsSuccess(List<Host> suggestions) {
     var suggestedHosts = suggestions.where((host) {
       final queryText = query.toLowerCase();
-      final ghText = host.name.toLowerCase();
+      final ghText = host.staffName.toLowerCase();
       return ghText.startsWith(queryText);
     }).toList();
 
@@ -191,14 +191,14 @@ class HostNameSearch extends SearchDelegate<Host> {
       itemCount: suggestedHosts.length,
       itemBuilder: (context, index) {
         final suggestion = suggestedHosts[index];
-        final queryText = suggestion.name.substring(0, query.length);
-        final remainingText = suggestion.name.substring(query.length);
+        final queryText = suggestion.staffName.substring(0, query.length);
+        final remainingText = suggestion.staffName.substring(query.length);
         return ListTile(
           tileColor: Palette.CUSTOM_WHITE,
           contentPadding: EdgeInsets.all(4),
           minVerticalPadding: 3,
           onTap: () {
-            query = suggestion.name;
+            query = suggestion.staffName;
             close(context, suggestion);
           },
           leading: Icon(Icons.person),
@@ -230,7 +230,7 @@ class HostNameSearch extends SearchDelegate<Host> {
               children: [
                 Text(suggestion.email),
                 Text(
-                  suggestion.id.toString(),
+                  suggestion.staffNo.toString(),
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
               ],

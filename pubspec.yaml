@@ -47,6 +47,9 @@ dependencies:
   ffi: ^2.0.1
   share_plus: ^4.0.10
   qr_flutter: ^4.0.0
+  path_provider: ^2.0.11
+  pdf: ^3.6.4
+  screenshot: ^1.2.3
   
 
 dev_dependencies:

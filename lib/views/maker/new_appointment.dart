@@ -10,6 +10,7 @@ import 'package:vms/notifiers/login_logout_notifier.dart';
 import 'package:vms/partials/common/bottom_fixed_section.dart';
 import 'package:vms/partials/new_appointment/date_time.dart';
 import 'package:vms/partials/new_appointment/group_head_search.dart';
+import 'package:vms/partials/new_appointment/host_name_search.dart';
 import 'package:vms/partials/new_appointment/host_section.dart';
 import 'package:vms/partials/new_appointment/visit_purpose.dart';
 import 'package:vms/partials/common/top.dart';
@@ -65,7 +66,7 @@ class _NewAppointmentState extends State<NewAppointment> {
                 Divider(),
                 VisitPurpose(visitPurposesList: visitPurposesList),
                 Divider(),
-                HostSection(onComplete: (value) {}),
+                CustomHostName(),
                 Divider(),
                 CustomGroupHead(),
                 Divider(),

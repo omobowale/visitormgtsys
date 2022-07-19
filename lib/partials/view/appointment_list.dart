@@ -73,7 +73,10 @@ class _AppointmentListState extends State<AppointmentList> {
           return AppointmentListItem(
             appointmentId: fetchedAppointment.appointmentId.toString(),
             isApproved: fetchedAppointment.isApproved,
-            isCancelled: fetchedAppointment.isCancelled,
+            isCancelled:
+                fetchedAppointment.visitStatus.toLowerCase() == "cancelled"
+                    ? true
+                    : false,
             startTime: CustomDateFormatter.getFormattedTime(
                 fetchedAppointment.startTime),
             endTime: CustomDateFormatter.getFormattedTime(

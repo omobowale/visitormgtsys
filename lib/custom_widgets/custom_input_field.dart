@@ -7,6 +7,7 @@ class CustomInputField extends StatefulWidget {
   final String hintText;
   Function? validator;
   final String labelText;
+  final bool isEnabled;
   final bool bordered;
   final int minLines;
   final int maxLines;
@@ -21,6 +22,7 @@ class CustomInputField extends StatefulWidget {
     required this.bordered,
     required this.onComplete,
     this.initialValue = "",
+    this.isEnabled = true,
     this.minLines = 1,
     this.maxLines = 1,
   }) : super(key: key);
@@ -42,6 +44,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      enabled: widget.isEnabled,
       onChanged: (value) {
         widget.onComplete(value);
       },
@@ -55,7 +58,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
       decoration: InputDecoration(
         // labelText: widget.labelText,
         labelStyle: TextStyle(
-          color: Colors.black.withOpacity(0.7),
+          color: Palette.FBN_BLUE.withOpacity(0.7),
           fontSize: 17,
           // fontWeight: FontWeight.w500,
         ),
@@ -66,6 +69,13 @@ class _CustomInputFieldState extends State<CustomInputField> {
           borderSide: BorderSide(
             color: widget.bordered ? Palette.FBN_BLUE : Palette.LAVENDAR_GREY,
             width: 2,
+          ),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(
+            color: widget.bordered ? Palette.FBN_BLUE : Palette.LAVENDAR_GREY,
+            width: 2.0,
           ),
         ),
         enabledBorder: OutlineInputBorder(

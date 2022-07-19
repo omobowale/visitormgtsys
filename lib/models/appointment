@@ -9,8 +9,6 @@ class Appointment {
   String id;
   Host host;
   Location location;
-  int locationId;
-  int floorId;
   String visitType;
   String visitPurpose;
   String visitorType;
@@ -20,7 +18,7 @@ class Appointment {
   int appointmentStatus;
   String meetingRoom;
   List<dynamic> guests;
-  String floor;
+  Floor floor;
   List<dynamic> rooms;
   GroupHead groupHead;
   String? purposeOfReschedule;
@@ -82,8 +80,6 @@ class Appointment {
     required this.location,
     this.purposeOfCancel,
     this.purposeOfReschedule,
-    required this.floorId,
-    required this.locationId,
   });
 
   void set setStartTime(DateTime time) {
@@ -118,8 +114,6 @@ class Appointment {
       "guests": guests,
       "roomNumbers": rooms,
       "location": location,
-      "locationId": locationId,
-      "floorId": floorId,
       "groupHead": groupHead,
       "purposeOfCancel": purposeOfCancel,
       "purposeOfReschedule": purposeOfReschedule,

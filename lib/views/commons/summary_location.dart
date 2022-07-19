@@ -6,7 +6,7 @@ import 'package:vms/models/location.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 
 class SummaryLocation extends StatefulWidget {
-  final Floor? floor;
+  final String? floor;
   final Location? location;
   final List<dynamic>? roomNumbers;
   final String? meetingRoom;
@@ -26,7 +26,7 @@ class SummaryLocation extends StatefulWidget {
 class _SummaryLocationState extends State<SummaryLocation> {
   List<dynamic> rooms = [];
   late Location location;
-  late Floor floor;
+  late String floor;
   late String meetingRoom;
 
   @override
@@ -54,15 +54,15 @@ class _SummaryLocationState extends State<SummaryLocation> {
         children: [
           CustomTextTitle(title: "Location"),
           Text(
-            "${location.name} [${floor.name}]",
+            "${meetingRoom}",
+            style: TextStyle(),
+          ),
+          Text(
+            "[${floor}]",
             style: TextStyle(
               fontWeight: FontWeight.w500,
             ),
           ),
-          // Text(
-          //   "${meetingRoom}",
-          //   style: TextStyle(),
-          // ),
           ...rooms.map(
             (e) {
               return Text(

@@ -44,7 +44,7 @@ class AppointmentService {
       print("status code: ${data.statusCode}");
       if (data.body.isNotEmpty) {
         final jsonData = json.decode(data.body);
-        // print("jsondata ooo: $jsonData");
+        print("jsondata ooo: $jsonData");
         //convert into list of appointments
         if (jsonData["data"].length > 0) {
           final List<FetchedAppointments> fetchedAppointments = [];
@@ -78,6 +78,7 @@ class AppointmentService {
               visitStatus: item["visitStatus"],
               isApproved: item["isApproved"],
               isCancelled: item["isCancelled"],
+              qrCode: item["qrCode"],
             );
             fetchedAppointments.add(fAppointment);
           }
@@ -121,6 +122,7 @@ class AppointmentService {
       print("status code: ${data.statusCode}");
       if (data.body.isNotEmpty) {
         final jsonData = json.decode(data.body);
+        print("single appointment jsonData: ${jsonData}");
         final extractedData = jsonData['data'];
 
         var fAppointment = FetchedAppointments(
@@ -150,6 +152,7 @@ class AppointmentService {
           visitStatus: extractedData["visitStatus"],
           isApproved: extractedData["isApproved"],
           isCancelled: extractedData["isCancelled"],
+          qrCode: extractedData["qrCode"],
         );
 
         return APIResponse<FetchedAppointments>(data: fAppointment);
@@ -190,32 +193,34 @@ class AppointmentService {
           final List<FetchedAppointments> fetchedAppointments = [];
           for (var item in jsonData["data"]) {
             var fAppointment = FetchedAppointments(
-                appointmentId: item["id"],
-                endTime: CustomDateFormatter.getDateTimeFromTimeString(
-                    DateTime.parse(item["dateAndTime"]),
-                    CustomDateFormatter.getFormattedTime(
-                        DateTime.parse(item["endTime"]))),
-                startTime: CustomDateFormatter.getDateTimeFromTimeString(
-                    DateTime.parse(item["dateAndTime"]),
-                    CustomDateFormatter.getFormattedTime(
-                        DateTime.parse(item["startTime"]))),
-                appointmentDate: DateTime.parse(item["dateAndTime"]),
-                visitors: Visitor.convertVisitorMapsToVisitorObjects(
-                    item["visitors"]),
-                appointmentStatus: item["appointmentStatus"],
-                rescheduleReason: item["rescheduleReason"].toString(),
-                cancellationReason: item["cancellationReason"].toString(),
-                visitGuid: item["visitGuid"].toString(),
-                meetingRooms: item["meetingRooms"] ?? "",
-                host: Host.fromMap(item["host"]),
-                groupHead: GroupHead.fromMap(item["groupHead"]),
-                visitType: item["visitType"],
-                location: item["location"],
-                floor: item["floor"],
-                visitPurpose: item["visitPurpose"],
-                visitStatus: item["visitStatus"],
-                isApproved: item["isApproved"],
-                isCancelled: item["isCancelled"]);
+              appointmentId: item["id"],
+              endTime: CustomDateFormatter.getDateTimeFromTimeString(
+                  DateTime.parse(item["dateAndTime"]),
+                  CustomDateFormatter.getFormattedTime(
+                      DateTime.parse(item["endTime"]))),
+              startTime: CustomDateFormatter.getDateTimeFromTimeString(
+                  DateTime.parse(item["dateAndTime"]),
+                  CustomDateFormatter.getFormattedTime(
+                      DateTime.parse(item["startTime"]))),
+              appointmentDate: DateTime.parse(item["dateAndTime"]),
+              visitors:
+                  Visitor.convertVisitorMapsToVisitorObjects(item["visitors"]),
+              appointmentStatus: item["appointmentStatus"],
+              rescheduleReason: item["rescheduleReason"].toString(),
+              cancellationReason: item["cancellationReason"].toString(),
+              visitGuid: item["visitGuid"].toString(),
+              meetingRooms: item["meetingRooms"] ?? "",
+              host: Host.fromMap(item["host"]),
+              groupHead: GroupHead.fromMap(item["groupHead"]),
+              visitType: item["visitType"],
+              location: item["location"],
+              floor: item["floor"],
+              visitPurpose: item["visitPurpose"],
+              visitStatus: item["visitStatus"],
+              isApproved: item["isApproved"],
+              isCancelled: item["isCancelled"],
+              qrCode: item["qrCode"],
+            );
             fetchedAppointments.add(fAppointment);
           }
 
@@ -260,7 +265,9 @@ class AppointmentService {
           endTime: DateTime.parse(jsonData["endTime"]),
           startTime: DateTime.parse(jsonData["startTime"]),
           location: Location.fromMap(jsonData["location"]),
-          floor: Floor.fromMap(jsonData["floor"]),
+          floor: jsonData["floor"],
+          floorId: jsonData["floorId"],
+          locationId: jsonData["locationId"],
           meetingRoom: jsonData["meetingRoom"],
           rooms: Room.convertRoomMapsToRoomObjects(jsonData["roomNumbers"]),
           host: Host.fromMap(jsonData["host"]),
@@ -318,51 +325,6 @@ class AppointmentService {
           error: true,
           errorMessage: "Could not create appointment",
           data: null);
-    });
-  }
-
-  Future<APIResponse<Appointment>> updateAppointment(
-      Appointment appointment, String appointmentId) {
-    return http
-        .put(Uri.parse("$url/appointments/$appointmentId"),
-            headers: headers,
-            body: json.encode(appointment.toJson(),
-                toEncodable: appointment.myEncode))
-        .then((data) {
-      if (data.statusCode == 200) {
-        final jsonData = json.decode(data.body);
-        var appointment = Appointment(
-          id: jsonData["id"],
-          guests:
-              Visitor.convertVisitorMapsToVisitorObjects(jsonData["guests"]),
-          groupHead: GroupHead.fromMap(jsonData["groupHead"]),
-          purposeOfReschedule: jsonData["purposeOfReschedule"],
-          purposeOfCancel: jsonData["purposeOfCancel"],
-          visitorType:
-              Visitor.convertVisitorMapsToVisitorObjects(jsonData["guests"])[0]
-                  .visitorType,
-          appointmentStatus: jsonData["appointmentStatus"],
-          visitType: jsonData["visitType"],
-          endTime: DateTime.parse(jsonData["endTime"]),
-          startTime: DateTime.parse(jsonData["startTime"]),
-          location: Location.fromMap(jsonData["location"]),
-          floor: Floor.fromMap(jsonData["floor"]),
-          meetingRoom: jsonData["meetingRoom"],
-          rooms: Room.convertRoomMapsToRoomObjects(jsonData["roomNumbers"]),
-          host: Host.fromMap(jsonData["host"]),
-          appointmentDate: DateTime.parse(jsonData["appointmentDate"]),
-          visitPurpose: jsonData["visitPurpose"],
-        );
-
-        return APIResponse<Appointment>(data: appointment, error: null);
-      }
-
-      return APIResponse<Appointment>(
-          error: true, errorMessage: "Error fetching appointment");
-    }).catchError((error) {
-      print("error here update: " + error.toString());
-      return APIResponse<Appointment>(
-          error: true, errorMessage: "Error fetching appointment");
     });
   }
 

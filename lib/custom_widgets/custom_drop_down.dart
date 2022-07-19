@@ -35,6 +35,7 @@ class _CustomDropDownState extends State<CustomDropDown> {
   Widget build(BuildContext context) {
     selectedValue = widget.text;
     return DropdownButtonFormField(
+      isExpanded: true,
       value: selectedValue,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
@@ -51,7 +52,12 @@ class _CustomDropDownState extends State<CustomDropDown> {
         String actualValue = (value is GroupHead) ? value.staffName : value;
         return DropdownMenuItem<String>(
           value: actualValue,
-          child: Text(actualValue),
+          child: Text(
+            actualValue,
+            style: TextStyle(
+              color: Palette.FBN_BLUE.withOpacity(0.7),
+            ),
+          ),
         );
       }).toList(),
       onChanged: (value) {

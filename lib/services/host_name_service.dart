@@ -4,30 +4,31 @@ import 'package:http/http.dart' as http;
 import 'package:vms/models/host.dart';
 
 class HostNameService {
-  var url = "https://62a9e7543b314385543df388.mockapi.io/api/v1/";
+  var url =
+      "https://visitmgtsystem.fbn-devops-dev-asenv.appserviceenvironment.net/api/Frontoffice";
   var headers = {
     "Content-Type": "application/json",
   };
 
   Future<APIResponse<List<Host>>> getHosts() {
     print("i got here");
-    return http.get(Uri.parse("$url/users")).then((data) {
+    return http.get(Uri.parse("$url/get-all-hosts")).then((data) {
       print(data.statusCode);
       if (data.statusCode == 200) {
         final jsonData = json.decode(data.body);
         //convert into list of appointments
         final List<Host> hosts = [];
-        for (var item in jsonData) {
+        for (var item in jsonData["data"]) {
           print("host name item is : ${item}");
           var host = Host(
             id: item["id"],
             email: item["email"],
             staffNo: item["staffNo"],
-            name: item["name"],
+            staffName: item["staffName"],
           );
           hosts.add(host);
         }
-        print("group head data here => ${hosts.toString()}");
+        print("host data here => ${hosts.toString()}");
         return APIResponse<List<Host>>(data: hosts);
       }
       return APIResponse<List<Host>>(

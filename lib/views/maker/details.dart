@@ -1,11 +1,18 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as mypdf;
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:vms/custom_classes/palette.dart';
 import 'package:vms/custom_widgets/custom_alert_dialog_box.dart';
 import 'package:vms/custom_widgets/custom_single_line_button.dart';
+import 'package:vms/custom_widgets/custom_text_title.dart';
 import 'package:vms/helperfunctions/appointmentDetailsExtractor.dart';
 import 'package:vms/helperfunctions/custom_date_formatter.dart';
 import 'package:vms/helperfunctions/enumerationExtraction.dart';
@@ -32,6 +39,8 @@ class Details extends StatefulWidget {
 }
 
 class _DetailsState extends State<Details> {
+  ScreenshotController _screenshotController = ScreenshotController();
+  ScreenshotController _screenshotController2 = ScreenshotController();
   AppointmentService get service => GetIt.I<AppointmentService>();
   bool isLoading = false;
   bool updateLoading = false;
@@ -73,6 +82,40 @@ class _DetailsState extends State<Details> {
 
     appointmentStatuses = getAndSetEnumeration(
         _loginLogoutNotifier.allEnums, "appointmentStatusEnum");
+  }
+
+  _shareQrCode() async {
+    final directory = (await getApplicationDocumentsDirectory()).path;
+    _screenshotController.capture().then((image) async {
+      if (image != null) {
+        try {
+          String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+          final imagePath = await File('$directory/$fileName.png').create();
+          if (imagePath != null) {
+            await imagePath.writeAsBytes(image);
+            Share.shareFiles([imagePath.path]);
+          }
+        } catch (error) {}
+      }
+    }).catchError((onError) {
+      print('Error --->> $onError');
+    });
+  }
+
+  Screenshot getQRView(data, ScreenshotController screenshotController) {
+    return Screenshot(
+      controller: screenshotController,
+      child: QrImage(
+        data: "${data}",
+        version: QrVersions.auto,
+        size: 320,
+        gapless: false,
+      ),
+    );
+  }
+
+  bool isEmptyOrNull(String? x) {
+    return x == "" || x == null;
   }
 
   @override
@@ -118,8 +161,7 @@ class _DetailsState extends State<Details> {
                     ],
                   ),
                 )
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              : ListView(
                   children: [
                     Column(
                       children: [
@@ -146,6 +188,32 @@ class _DetailsState extends State<Details> {
                             endTime: CustomDateFormatter.getFormattedTime(
                                 fetchedAppointment.data?.endTime ?? null)),
                         Divider(),
+                        (isEmptyOrNull(fetchedAppointment
+                                    .data?.cancellationReason) &&
+                                isEmptyOrNull(
+                                    fetchedAppointment.data?.rescheduleReason))
+                            ? Container()
+                            : Container(
+                                alignment: Alignment.centerLeft,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                margin: EdgeInsets.only(
+                                  bottom: 10,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CustomTextTitle(title: "Reason:"),
+                                    Text(fetchedAppointment
+                                            .data?.cancellationReason ??
+                                        fetchedAppointment
+                                            .data?.rescheduleReason ??
+                                        ""),
+                                  ],
+                                ),
+                              ),
                         DetailsSummaryLocation(
                           floor: fetchedAppointment.data?.floor,
                           location: fetchedAppointment.data?.location,
@@ -157,52 +225,62 @@ class _DetailsState extends State<Details> {
                         ),
                         Divider(),
                         widget.isApproved
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            ? Column(
                                 children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      Share.share("This is your QR code");
-                                    },
-                                    icon: Icon(
-                                      Icons.share,
-                                      color: Palette.FBN_GREEN.withOpacity(0.6),
-                                    ),
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    child: getQRView(
+                                        fetchedAppointment.data?.qrCode,
+                                        _screenshotController),
                                   ),
-                                  IconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                          barrierDismissible: true,
-                                          barrierColor: Colors.white,
-                                          context: context,
-                                          builder: (_) {
-                                            return AlertDialog(
-                                              content: Container(
-                                                width: 300,
-                                                height: 300,
-                                                child: QrImage(
-                                                  data:
-                                                      'This is a simple QR code',
-                                                  version: QrVersions.auto,
-                                                  size: 320,
-                                                  gapless: false,
-                                                ),
-                                              ),
-                                              actions: <Widget>[
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(_);
-                                                  },
-                                                  child: Text("Ok"),
-                                                ),
-                                              ],
-                                            );
-                                          });
-                                    },
-                                    icon: Icon(
-                                      Icons.visibility,
-                                      color: Palette.FBN_GREEN.withOpacity(0.6),
-                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          _shareQrCode();
+                                        },
+                                        icon: Icon(
+                                          Icons.share,
+                                          color: Palette.FBN_GREEN
+                                              .withOpacity(0.6),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          showDialog(
+                                              barrierDismissible: true,
+                                              barrierColor: Colors.white,
+                                              context: context,
+                                              builder: (_) {
+                                                return AlertDialog(
+                                                  content: Container(
+                                                    width: 300,
+                                                    height: 300,
+                                                    child: getQRView(
+                                                        fetchedAppointment
+                                                            .data?.qrCode,
+                                                        _screenshotController2),
+                                                  ),
+                                                  actions: <Widget>[
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(_);
+                                                      },
+                                                      child: Text("Ok"),
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                        },
+                                        icon: Icon(
+                                          Icons.visibility,
+                                          color: Palette.FBN_GREEN
+                                              .withOpacity(0.6),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               )

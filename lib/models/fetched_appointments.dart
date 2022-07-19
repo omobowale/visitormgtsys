@@ -24,6 +24,7 @@ class FetchedAppointments {
   String visitStatus;
   bool isCancelled;
   bool isApproved;
+  String qrCode;
 
   FetchedAppointments({
     required this.appointmentId,
@@ -45,12 +46,13 @@ class FetchedAppointments {
     required this.visitStatus,
     required this.isApproved,
     required this.isCancelled,
+    required this.qrCode,
   });
 
   @override
   String toString() {
     return "{appointmentId: $appointmentId, visitGuid: $visitGuid, visitPurpose: $visitPurpose, appointmentDate: $appointmentDate" +
-        "startTime: $startTime, endTime: $endTime, groupHead: $groupHead, host: ${host}" +
+        "startTime: $startTime, qrCode: $qrCode, endTime: $endTime, groupHead: $groupHead, host: ${host}" +
         "}";
   }
 

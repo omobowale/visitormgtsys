@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vms/custom_classes/palette.dart';
 import 'package:vms/models/host.dart';
 
 class StaffDetails extends StatelessWidget {
@@ -40,9 +41,11 @@ class StaffDetails extends StatelessWidget {
           ),
           Container(
             child: Text(
-              host.name,
+              host.staffName,
               style: TextStyle(
-                  fontWeight: FontWeight.w500, fontSize: 16, color: Colors.red),
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  color: Palette.FBN_BLUE),
             ),
           ),
         ],

@@ -102,7 +102,6 @@ class AppointmentNotifier with ChangeNotifier {
   }
 
   void loadSelectedAppointment(FetchedAppointments? fetchedAppointments) {
-    print("loading selected appointment");
     setIsEditing = true;
     setIsCreating = false;
     if (fetchedAppointments != null) {
@@ -119,15 +118,13 @@ class AppointmentNotifier with ChangeNotifier {
         visitType: "",
         appointmentStatus: 0,
         appointmentDate: fetchedAppointments.appointmentDate,
-        floor: "",
+        floor: Floor.emptyOne(),
         guests: [],
-        meetingRoom: "",
+        meetingRoom: '',
         rooms: [],
         location: Location.emptyOne(),
-        locationId: 0,
-        floorId: 0,
-        purposeOfCancel: fetchedAppointments.cancellationReason,
-        purposeOfReschedule: fetchedAppointments.rescheduleReason,
+        purposeOfCancel: "",
+        purposeOfReschedule: "",
       );
       resetAppointmentList();
       _appointmentsList.add(appointment);
@@ -153,9 +150,7 @@ class AppointmentNotifier with ChangeNotifier {
           visitorType: "",
           appointmentStatus: 0, //appointmentStatuses[0]["value"],
           appointmentDate: DateTime.now(),
-          floor: "",
-          floorId: 0,
-          locationId: 0,
+          floor: Floor.emptyOne(),
           guests: [getNewGuest],
           rooms: [],
           meetingRoom: "",
@@ -305,13 +300,19 @@ class AppointmentNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  void addCreatedLocation(CreatedLocation location) {
-    _appointmentsList[_appointmentsList.length - 1].meetingRoom =
-        location.meetingRoom;
-    _appointmentsList[_appointmentsList.length - 1].floor = location.floorName;
-    addFloor(location.floorName);
+  void addLocation(Location location) {
+    _appointmentsList[_appointmentsList.length - 1].location = location;
+    addFloor(location.floors[0]);
     print("floor: " +
-        _appointmentsList[_appointmentsList.length - 1].floor.toString());
+        _appointmentsList[_appointmentsList.length - 1].floor.name.toString());
+    notifyListeners();
+  }
+
+  void addCreatedLocation(CreatedLocation location) {
+    _appointmentsList[_appointmentsList.length - 1].location = location;
+    addFloor(location.floors[0]);
+    print("floor: " +
+        _appointmentsList[_appointmentsList.length - 1].floor.name.toString());
     notifyListeners();
   }
 
@@ -341,16 +342,8 @@ class AppointmentNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  void addFloor(String floor) {
+  void addFloor(Floor floor) {
     _appointmentsList[_appointmentsList.length - 1].floor = floor;
-    notifyListeners();
-  }
-
-  void addLocationDetails(dynamic locationDetails) {
-    _appointmentsList[_appointmentsList.length - 1].locationId =
-        locationDetails.locationId;
-    _appointmentsList[_appointmentsList.length - 1].floorId =
-        locationDetails.floorId;
     notifyListeners();
   }
 
@@ -385,9 +378,6 @@ class AppointmentNotifier with ChangeNotifier {
     app += "cancel reason: " + appointment.purposeOfCancel.toString() + "\n";
     app += "location: " + appointment.location.toString() + "\n";
     app += "floor: " + appointment.floor.toString() + "\n";
-    app += "locationId: " + appointment.locationId.toString() + "\n";
-    app += "floorId: " + appointment.floorId.toString() + "\n";
-    app += "meeting room: " + appointment.meetingRoom + "\n";
 
     print(app);
   }
@@ -517,7 +507,7 @@ class AppointmentNotifier with ChangeNotifier {
     }
   }
 
-  void isFloorValid(String floor) {
+  void isFloorValid(Floor floor) {
     if (floor == null || floor == "") {
       locationErrors.putIfAbsent("floor", () => "Please select a floor");
     } else {
@@ -546,10 +536,10 @@ class AppointmentNotifier with ChangeNotifier {
   void locationValid() {
     var currentAppointment = _appointmentsList[_appointmentsList.length - 1];
 
-    // isLocationValid(currentAppointment.location);
+    isLocationValid(currentAppointment.location);
     isFloorValid(currentAppointment.floor);
-    isMeetingRoomValid(currentAppointment.meetingRoom);
-    // areRoomsValid(currentAppointment.rooms);
+    // isMeetingRoomValid(currentAppointment.meetingRoom);
+    areRoomsValid(currentAppointment.rooms);
 
     print(locationErrors);
 

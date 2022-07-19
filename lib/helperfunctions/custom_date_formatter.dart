@@ -30,7 +30,6 @@ class CustomDateFormatter {
   }
 
   static String getFormattedDay(DateTime? dateTime) {
-    print(dateTime.toString());
     if (dateTime != null) {
       DateFormat formatter = DateFormat('EEEE MMM dd, yyyy');
       String formatted = formatter.format(dateTime);
@@ -45,14 +44,12 @@ class CustomDateFormatter {
   }
 
   static String getTimeStringFromDateTime(DateTime time) {
-    print("I am here now");
     String pad = "0";
 
     if (time.hour >= 10 && time.hour <= 12) {
       pad = "";
     }
 
-    print("Date time: ${time}");
     String getTimeInAmPm = pad + DateFormat.jm().format(time);
 
     return getTimeInAmPm;

@@ -12,7 +12,7 @@ import 'package:vms/services/location_service.dart';
 
 class LocationSection extends StatefulWidget {
   final String labelText;
-  final List<Location> locationsList;
+  final List<dynamic> locationsList;
 
   const LocationSection(
       {Key? key, required this.labelText, required this.locationsList})

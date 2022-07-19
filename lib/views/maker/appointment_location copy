@@ -5,13 +5,14 @@ import 'package:vms/custom_classes/palette.dart';
 import 'package:vms/custom_widgets/custom_input_field_disabled.dart';
 import 'package:vms/helperfunctions/appointmentDetailsExtractor.dart';
 import 'package:vms/models/api_response.dart';
-import 'package:vms/models/created_location.dart';
 import 'package:vms/models/floor.dart';
 import 'package:vms/models/location.dart';
 import 'package:vms/notifiers/appointment_notifier.dart';
 import 'package:vms/partials/appointment_location/room.dart';
+import 'package:vms/partials/appointment_location/roomlist.dart';
 import 'package:vms/services/location_service.dart';
 import 'package:vms/partials/appointment_location/floor.dart';
+import 'package:vms/partials/appointment_location/location.dart';
 import 'package:vms/partials/common/bottom_fixed_section.dart';
 import 'package:vms/partials/common/top.dart';
 
@@ -24,7 +25,7 @@ class AppointmentLocation extends StatefulWidget {
 
 class _AppointmentLocationState extends State<AppointmentLocation> {
   LocationService get service => GetIt.I<LocationService>();
-  late APIResponse<List<CreatedLocation>> _locationsList;
+  late APIResponse<List<Location>> _locationsList;
   late AppointmentNotifier _appointmentNotifier;
   late List<Floor> _floorsList;
   List<Location> fallbackLocation = [
@@ -36,28 +37,23 @@ class _AppointmentLocationState extends State<AppointmentLocation> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
-    _appointmentNotifier =
-        Provider.of<AppointmentNotifier>(context, listen: false);
-
     setState(() {
       isLoading = true;
     });
+
+    _appointmentNotifier =
+        Provider.of<AppointmentNotifier>(context, listen: false);
+    print("here now");
     service.getLocations().then((response) {
+      print("here 2");
       setState(() {
         _locationsList = response;
-        var data = _locationsList.data ?? [];
-        if (_appointmentNotifier.appointments[0].meetingRoom.isEmpty) {
-          var meetingRooms = getRooms(data);
-          _appointmentNotifier.addMeetingRoom(meetingRooms[0]);
-          _appointmentNotifier
-              .addFloor(getFloorFromRoomName(data, meetingRooms[0]));
-          _appointmentNotifier.addLocationDetails(
-              getLocationDetailsFromRoomName(data, meetingRooms[0]));
-          print(
-              "location detals: ${getLocationDetailsFromRoomName(data, meetingRooms[0])}");
-          _appointmentNotifier.removeError("meetingRoom");
-          _appointmentNotifier.removeError("floor");
+        getRooms(_locationsList.data!);
+        getFloorFromRoomName(_locationsList.data!, "Meeting Room A (by CBG)");
+        print("i got here");
+        print("location list data: ${_locationsList.data}");
+        if (!_appointmentNotifier.appointments[0].location.isValid()) {
+          _appointmentNotifier.addLocation(_locationsList.data![0]);
         }
       });
       setState(() {
@@ -84,24 +80,22 @@ class _AppointmentLocationState extends State<AppointmentLocation> {
                 _locationsList.data != null
                     ? Column(
                         children: [
+                          LocationSection(
+                            labelText: "Location",
+                            locationsList: _locationsList.data!,
+                          ),
                           RoomSection(
                             labelText: "Room",
                             locationsList: _locationsList.data!,
-                            roomsList: getRooms(_locationsList.data!),
+                            floorsList: getRooms(_locationsList.data!),
                           ),
                           FloorSection(
                             labelText: "Floor",
                             valueText: context
-                                    .watch<AppointmentNotifier>()
-                                    .appointments[0]
-                                    .floor
-                                    .isEmpty
-                                ? getFloorFromRoomName(_locationsList.data!,
-                                    getRooms(_locationsList.data!)[0])
-                                : context
-                                    .watch<AppointmentNotifier>()
-                                    .appointments[0]
-                                    .floor,
+                                .watch<AppointmentNotifier>()
+                                .appointments[0]
+                                .floor
+                                .name,
                           ),
                         ],
                       )
@@ -111,6 +105,10 @@ class _AppointmentLocationState extends State<AppointmentLocation> {
                           text: "Unable to fetch locations",
                         ),
                       ),
+                // Room(onComplete: (value) {
+                //   _appointmentNotifier.addMeetingRoom(value);
+                // }),
+
                 Divider(),
                 BottomFixedSection(
                   leftText: "Back",

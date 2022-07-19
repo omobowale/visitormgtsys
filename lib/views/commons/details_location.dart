@@ -47,7 +47,7 @@ class _DetailsSummaryLocationState extends State<DetailsSummaryLocation> {
         children: [
           CustomTextTitle(title: "Location"),
           Text(
-            "${location} [${floor}]",
+            "${location}",
             style: TextStyle(
               fontWeight: FontWeight.w500,
             ),
@@ -59,7 +59,13 @@ class _DetailsSummaryLocationState extends State<DetailsSummaryLocation> {
                 style: TextStyle(),
               );
             },
-          )
+          ),
+          Text(
+            "[${floor}]",
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );

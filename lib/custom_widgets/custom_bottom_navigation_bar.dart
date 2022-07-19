@@ -44,7 +44,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       // selectedItemColor: Palette.CUSTOM_YELLOW,
       currentIndex: _selectedIndex,
       onTap: (index) {
-        print("index ${index}");
         _selectedIndex = index;
         navigateTo(index);
       },

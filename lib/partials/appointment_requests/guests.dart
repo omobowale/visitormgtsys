@@ -8,6 +8,7 @@ class Guests extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("guests : $guests");
     return GestureDetector(
       onTap: () {
         if (guests.length < 1) {
